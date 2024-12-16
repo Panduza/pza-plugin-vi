@@ -1,15 +1,14 @@
-use panduza_platform_core::{spawn_on_command, Error, Instance, Class, JsonAttServer};
+use panduza_platform_core::{spawn_on_command, Error, Instance, JsonAttServer};
 
 ///
 ///
 ///
 pub async fn mount(
     mut instance: Instance,
-    mut class: Class
 ) -> Result<(), Error> {
     //
     // Create interface
-    // let mut class = class.create_class("json").finish();
+    let mut class = instance.create_class("json").finish();
 
     //
     //

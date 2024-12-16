@@ -31,18 +31,15 @@ impl DriverOperations for ViDevice {
     ///
     ///
     ///
-    async fn mount(&mut self, mut instance: Instance) -> Result<(), Error> {
-        
-        let cl = instance.create_class("type").finish();
+    async fn mount(&mut self, instance: Instance) -> Result<(), Error> {
 
-        // datatype::mount(instance.clone()).await?;
-        string_ro_wo::mount(instance.clone(), cl.clone()).await?;
-        string_rw::mount(instance.clone(), cl.clone()).await?;
-        bool_ro_wo::mount(instance.clone(), cl.clone()).await?;
-        enum_ro_wo::mount(instance.clone(), cl.clone()).await?;
-        json_ro_wo::mount(instance.clone(), cl.clone()).await?;
-        number_ro_wo::mount(instance.clone(), cl.clone()).await?;
-        si_ro_wo::mount(instance.clone(), cl.clone()).await?;
+        string_ro_wo::mount(instance.clone()).await?;
+        string_rw::mount(instance.clone()).await?;
+        bool_ro_wo::mount(instance.clone()).await?;
+        enum_ro_wo::mount(instance.clone()).await?;
+        json_ro_wo::mount(instance.clone()).await?;
+        number_ro_wo::mount(instance.clone()).await?;
+        si_ro_wo::mount(instance.clone()).await?;
         
         Ok(())
     }

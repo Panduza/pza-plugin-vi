@@ -1,15 +1,19 @@
-use panduza_platform_core::{spawn_on_command, Error, Instance, Class, NumberAttServer};
+use panduza_platform_core::{log_info, spawn_on_command, Error, Instance, InstanceLogger, NumberAttServer};
 
 ///
 ///
 ///
 pub async fn mount(
     mut instance: Instance,
-    mut class: Class
 ) -> Result<(), Error> {
     //
+    // 
+    let logger = instance.logger.clone();
+    logger.info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+    //
     // Create interface
-    // let mut class = class.create_class("number").finish();
+    let mut class = instance.create_class("number").finish();
 
     //
     //
@@ -31,17 +35,21 @@ pub async fn mount(
 
     // 
     // 
+    let logger_2 = logger.clone();
     let att_number_wo_2 = att_number_wo.clone();
     spawn_on_command!(
         "on_command",
         instance,
         att_number_wo_2,
         on_command(
+            logger_2.clone(),
             att_number_ro.clone(),
             att_number_wo_2.clone()
         )
     );
     
+    logger.info("fin numberrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+
     Ok(())
 }
 
@@ -49,10 +57,13 @@ pub async fn mount(
 ///
 ///
 async fn on_command(
+    logger: InstanceLogger,
     mut att_number_ro: NumberAttServer,
     att_number_wo: NumberAttServer,
 ) -> Result<(), Error> {
+    log_info!(logger, "commmmmmmmmmmmmmannnnnnnnnnnnnnnnnnnnnndddddddddddddddddddddd");
     while let Some(command) = att_number_ro.pop_cmd_as_i64().await {
+        log_info!(logger, "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
         att_number_wo.set_from_i64(command).await?;
     }
 

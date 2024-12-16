@@ -1,15 +1,14 @@
-use panduza_platform_core::{spawn_on_command, Error, Instance, Class, EnumAttServer};
+use panduza_platform_core::{spawn_on_command, Error, Instance, EnumAttServer};
 
 ///
 ///
 ///
 pub async fn mount(
     mut instance: Instance,
-    mut class: Class
 ) -> Result<(), Error> {
     //
     // Create interface
-    // let mut class = class.create_class("enum").finish();
+    let mut class = instance.create_class("enum").finish();
 
     //
     //

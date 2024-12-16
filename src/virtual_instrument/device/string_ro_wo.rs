@@ -1,15 +1,19 @@
-use panduza_platform_core::{spawn_on_command, Error, Instance, Class, StringAttServer};
+use panduza_platform_core::{log_info, spawn_on_command, Error, Instance, InstanceLogger, StringAttServer};
 
 ///
 ///
 ///
 pub async fn mount(
     mut instance: Instance,
-    mut class: Class
 ) -> Result<(), Error> {
     //
+    // 
+    let logger = instance.logger.clone();
+    logger.info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+    //
     // Create interface
-    // let mut class = class.create_class("string").finish();
+    let mut class = instance.create_class("string").finish();
 
     //
     //
@@ -44,6 +48,8 @@ pub async fn mount(
     
     // let Some(resp) = att_string_ro.pop_cmd().await;
     // att_string_wo.set(resp).await?;
+
+    logger.info("fin numberrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
 
     Ok(())
 }
