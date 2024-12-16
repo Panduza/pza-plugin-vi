@@ -9,7 +9,7 @@ pub async fn mount(
 ) -> Result<(), Error> {
     //
     // Create interface
-    let mut c_interface = class.create_class("boolean").finish();
+    // let mut c_interface = class.create_class("boolean").finish();
 
     //
     //

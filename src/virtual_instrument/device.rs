@@ -33,16 +33,16 @@ impl DriverOperations for ViDevice {
     ///
     async fn mount(&mut self, mut instance: Instance) -> Result<(), Error> {
         
-        let itf_type = instance.create_class("type").finish();
+        let cl = instance.create_class("type").finish();
 
         // datatype::mount(instance.clone()).await?;
-        string_ro_wo::mount(instance.clone(), itf_type.clone()).await?;
-        string_rw::mount(instance.clone(), itf_type.clone()).await?;
-        bool_ro_wo::mount(instance.clone(), itf_type.clone()).await?;
-        enum_ro_wo::mount(instance.clone(), itf_type.clone()).await?;
-        json_ro_wo::mount(instance.clone(), itf_type.clone()).await?;
-        number_ro_wo::mount(instance.clone(), itf_type.clone()).await?;
-        si_ro_wo::mount(instance.clone(), itf_type.clone()).await?;
+        string_ro_wo::mount(instance.clone(), cl.clone()).await?;
+        string_rw::mount(instance.clone(), cl.clone()).await?;
+        bool_ro_wo::mount(instance.clone(), cl.clone()).await?;
+        enum_ro_wo::mount(instance.clone(), cl.clone()).await?;
+        json_ro_wo::mount(instance.clone(), cl.clone()).await?;
+        number_ro_wo::mount(instance.clone(), cl.clone()).await?;
+        si_ro_wo::mount(instance.clone(), cl.clone()).await?;
         
         Ok(())
     }
