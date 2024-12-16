@@ -9,11 +9,11 @@ pub async fn mount(
 ) -> Result<(), Error> {
     //
     // Create interface
-    // let mut c_interface = class.create_class("enum").finish();
+    // let mut class = class.create_class("enum").finish();
 
     //
     //
-    let att_enum_ro = c_interface
+    let att_enum_ro = class
         .create_attribute("enum_ro")
         .with_ro()
         .with_info(r#"read command"#)
@@ -22,7 +22,7 @@ pub async fn mount(
 
     //
     //
-    let att_enum_wo = c_interface
+    let att_enum_wo = class
         .create_attribute("enum_wo")
         .with_wo()
         .with_info(r#"write command"#)

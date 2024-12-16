@@ -9,11 +9,11 @@ pub async fn mount(
 ) -> Result<(), Error> {
     //
     // Create interface
-    // let mut c_interface = class.create_class("si").finish();
+    // let mut class = class.create_class("si").finish();
 
     //
     //
-    let att_si_ro = c_interface
+    let att_si_ro = class
         .create_attribute("si_ro")
         .with_ro()
         .with_info(r#"read command"#)
@@ -22,7 +22,7 @@ pub async fn mount(
 
     //
     //
-    let att_si_wo = c_interface
+    let att_si_wo = class
         .create_attribute("si_wo")
         .with_wo()
         .with_info(r#"write command"#)
