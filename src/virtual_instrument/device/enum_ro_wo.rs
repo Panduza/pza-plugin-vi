@@ -48,11 +48,11 @@ pub async fn mount(
 ///
 ///
 async fn on_command(
-    mut att_enum_ro: EnumAttServer,
-    att_enum_wo: EnumAttServer,
+    att_enum_ro: EnumAttServer,
+    mut att_enum_wo: EnumAttServer,
 ) -> Result<(), Error> {
-    while let Some(command) = att_enum_ro.pop_cmd().await {
-        att_enum_wo.set(command?).await?;
+    while let Some(command) = att_enum_wo.pop_cmd().await {
+        att_enum_ro.set(command?).await?;
     }
 
     Ok(())

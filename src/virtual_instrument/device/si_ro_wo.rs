@@ -48,11 +48,11 @@ pub async fn mount(
 ///
 ///
 async fn on_command(
-    mut att_si_ro: SiAttServer,
-    att_si_wo: SiAttServer,
+    att_si_ro: SiAttServer,
+    mut att_si_wo: SiAttServer,
 ) -> Result<(), Error> {
-    while let Some(command) = att_si_ro.pop_cmd_as_f32().await {
-        att_si_wo.set_from_f32(command?).await?;
+    while let Some(command) = att_si_wo.pop_cmd_as_f32().await {
+        att_si_ro.set_from_f32(command?).await?;
     }
 
     Ok(())

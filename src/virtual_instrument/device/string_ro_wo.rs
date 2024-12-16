@@ -7,11 +7,6 @@ pub async fn mount(
     mut instance: Instance,
 ) -> Result<(), Error> {
     //
-    // 
-    let logger = instance.logger.clone();
-    logger.info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
-    //
     // Create interface
     let mut class = instance.create_class("string").finish();
 
@@ -24,6 +19,10 @@ pub async fn mount(
         .finish_as_string()
         .await?;
 
+    // 
+    // 
+    att_string_ro.set("test".to_string()).await?;
+
     //
     //
     let att_string_wo = class
@@ -32,6 +31,10 @@ pub async fn mount(
         .with_info(r#"write command"#)
         .finish_as_string()
         .await?;
+
+    // 
+    // 
+    att_string_wo.set("test".to_string()).await?;
 
     // 
     // 
@@ -49,8 +52,6 @@ pub async fn mount(
     // let Some(resp) = att_string_ro.pop_cmd().await;
     // att_string_wo.set(resp).await?;
 
-    logger.info("fin numberrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
-
     Ok(())
 }
 
@@ -58,11 +59,11 @@ pub async fn mount(
 ///
 ///
 async fn on_command(
-    mut att_string_ro: StringAttServer,
-    att_string_wo: StringAttServer,
+    att_string_ro: StringAttServer,
+    mut att_string_wo: StringAttServer,
 ) -> Result<(), Error> {
-    while let Some(command) = att_string_ro.pop_cmd().await {
-        att_string_wo.set(command).await?;
+    while let Some(command) = att_string_wo.pop_cmd().await {
+        att_string_ro.set(command).await?;
     }
 
     Ok(())

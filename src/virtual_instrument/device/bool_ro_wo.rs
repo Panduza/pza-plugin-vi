@@ -47,11 +47,11 @@ pub async fn mount(
 ///
 ///
 async fn on_command(
-    mut att_boolean_ro: BooleanAttServer,
-    att_boolean_wo: BooleanAttServer,
+    att_boolean_ro: BooleanAttServer,
+    mut att_boolean_wo: BooleanAttServer,
 ) -> Result<(), Error> {
-    while let Some(command) = att_boolean_ro.pop_cmd().await {
-        att_boolean_wo.set(command).await?;
+    while let Some(command) = att_boolean_wo.pop_cmd().await {
+        att_boolean_ro.set(command).await?;
     }
 
     Ok(())

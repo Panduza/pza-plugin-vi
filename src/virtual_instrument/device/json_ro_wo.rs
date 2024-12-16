@@ -48,11 +48,11 @@ pub async fn mount(
 ///
 ///
 async fn on_command(
-    mut att_json_ro: JsonAttServer,
-    att_json_wo: JsonAttServer,
+    att_json_ro: JsonAttServer,
+    mut att_json_wo: JsonAttServer,
 ) -> Result<(), Error> {
-    while let Some(command) = att_json_ro.pop_cmd().await {
-        att_json_wo.set(command).await?;
+    while let Some(command) = att_json_wo.pop_cmd().await {
+        att_json_ro.set(command).await?;
     }
 
     Ok(())
