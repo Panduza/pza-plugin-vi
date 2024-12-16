@@ -31,6 +31,8 @@ pub async fn mount(
 
     let att_string_wo_2 = att_string_wo.clone();
     spawn_on_command!(
+        "on_command",
+        instance,
         att_string_wo_2,
         on_command(
             att_string_ro.clone(),
