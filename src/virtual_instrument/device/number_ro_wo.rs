@@ -24,6 +24,10 @@ pub async fn mount(
         .finish_as_number()
         .await?;
 
+    // 
+    // 
+    att_number_ro.set_from_i64(0);
+
     //
     //
     let att_number_wo = class
@@ -32,6 +36,10 @@ pub async fn mount(
         .with_info(r#"write command"#)
         .finish_as_number()
         .await?;
+        
+    // 
+    // 
+    att_number_wo.set_from_i64(0);
 
     // 
     // 
@@ -58,12 +66,13 @@ pub async fn mount(
 ///
 async fn on_command(
     logger: InstanceLogger,
-    mut att_number_ro: NumberAttServer,
-    att_number_wo: NumberAttServer,
+    att_number_ro: NumberAttServer,
+    mut att_number_wo: NumberAttServer,
 ) -> Result<(), Error> {
     log_info!(logger, "commmmmmmmmmmmmmannnnnnnnnnnnnnnnnnnnnndddddddddddddddddddddd");
-    while let Some(command) = att_number_ro.pop_cmd_as_i64().await {
+    while let Some(command) = att_number_wo.pop_cmd_as_i64().await {
         log_info!(logger, "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
+        att_number_ro.set_from_i64(command).await?;
         att_number_wo.set_from_i64(command).await?;
     }
 
