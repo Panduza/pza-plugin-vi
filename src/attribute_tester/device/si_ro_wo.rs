@@ -43,7 +43,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     let att_si_rw = class
         .create_attribute("si_rw")
-        .with_wo()
+        .with_rw()
         .with_info(r#"read write command"#)
         .finish_as_si("test", 0, 100, 2)
         .await?;

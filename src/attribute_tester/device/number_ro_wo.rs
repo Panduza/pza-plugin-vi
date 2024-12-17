@@ -46,7 +46,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     let att_number_rw = class
         .create_attribute("number_rw")
-        .with_wo()
+        .with_rw()
         .with_info(r#"read write command"#)
         .finish_as_number()
         .await?;

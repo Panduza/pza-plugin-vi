@@ -58,7 +58,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     let att_enum_rw = class
         .create_attribute("enum_rw")
-        .with_wo()
+        .with_rw()
         .with_info(r#"read write command"#)
         .finish_as_enum(choices.clone())
         .await?;

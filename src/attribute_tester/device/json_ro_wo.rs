@@ -44,7 +44,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     let att_json_rw = class
         .create_attribute("json_rw")
-        .with_wo()
+        .with_rw()
         .with_info(r#"read write command"#)
         .finish_as_json()
         .await?;
