@@ -9,7 +9,7 @@ crate-type = ["lib", "cdylib"]
 
 [dependencies]
 # Core
-panduza-platform-core = { git = "https://github.com/Panduza/panduza-platform-core", tag = "0.1.8" }
+panduza-platform-core = { git = "https://github.com/Panduza/panduza-platform-core", tag = "0.1.9" }
 # Main async framework for the platform
 tokio = { version = "1.40.0", features = ["full"] }
 # Json serialization & deserialization
@@ -26,7 +26,7 @@ rand = "0.8.5"
 # This level is configured separately for release and debug builds.
 tracing = { version = "0.1", features = [
     "max_level_trace",
-    "release_max_level_trace"
+    "release_max_level_trace",
 ] }
 
 # 
@@ -34,7 +34,7 @@ tracing-core = { version = "0.1.32" }
 
 [package.metadata.cargo-post.dependencies]
 # Core
-panduza-platform-core = { git = "https://github.com/Panduza/panduza-platform-core", tag = "0.1.8" }
+panduza-platform-core = { git = "https://github.com/Panduza/panduza-platform-core", tag = "0.1.9" }
 
 
 [features]

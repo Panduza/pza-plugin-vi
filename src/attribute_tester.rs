@@ -1,25 +1,26 @@
+pub mod device;
 use panduza_platform_core::{DriverOperations, Producer};
-use super::device::ViDevice;
 
-pub struct Vi {}
+#[derive(Default)]
+pub struct Package {}
 
-impl Vi {
-    pub fn new() -> Box<Vi> {
-        Box::new(Vi {})
+impl Package {
+    pub fn boxed(self) -> Box<Self> {
+        Box::new(self)
     }
 }
 
-impl Producer for Vi {
+impl Producer for Package {
     fn manufacturer(&self) -> String {
-        "panduza".to_string()
+        "vi".to_string()
     }
 
     fn model(&self) -> String {
-        "VI".to_string()
+        "attribute_tester".to_string()
     }
 
     fn description(&self) -> String {
-        "Virtual Instrument interface".to_string()
+        "Virtual Instrument to test attributes and classes".to_string()
     }
 
     fn props(&self) -> panduza_platform_core::Props {
@@ -27,6 +28,6 @@ impl Producer for Vi {
     }
 
     fn produce(&self) -> Result<Box<dyn DriverOperations>, panduza_platform_core::Error> {
-        return Ok(Box::new(ViDevice::new()));
+        return Ok(Box::new(device::Device::new()));
     }
 }
