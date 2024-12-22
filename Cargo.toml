@@ -9,7 +9,8 @@ crate-type = ["lib", "cdylib"]
 
 [dependencies]
 # Core
-panduza-platform-core = { git = "https://github.com/Panduza/panduza-platform-core", tag = "0.1.10" }
+# panduza-platform-core = { git = "https://github.com/Panduza/panduza-platform-core", tag = "0.1.10" }
+panduza-platform-core = { path = "C:/Users/xavie/workspace/panduza-platform-core" }
 # Main async framework for the platform
 tokio = { version = "1.40.0", features = ["full"] }
 # Json serialization & deserialization
