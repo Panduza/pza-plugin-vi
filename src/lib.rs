@@ -5,9 +5,9 @@ panduza_platform_core::plugin_interface!("vi");
 
 //
 // Import modules
-mod attribute_tester;
 mod daq;
 mod repl;
+mod tester;
 
 //
 // Export the producers of the plugin
@@ -15,7 +15,7 @@ pub fn plugin_producers() -> Vec<Box<dyn Producer>> {
     let mut producers: Vec<Box<dyn Producer>> = vec![];
     producers.push(repl::Package::default().boxed());
     producers.push(daq::Package::default().boxed());
-    producers.push(attribute_tester::Package::default().boxed());
+    producers.push(tester::Package::default().boxed());
     return producers;
 }
 

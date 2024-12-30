@@ -16,7 +16,7 @@ impl Producer for Package {
     }
 
     fn model(&self) -> String {
-        "attribute_tester".to_string()
+        "tester".to_string()
     }
 
     fn description(&self) -> String {
