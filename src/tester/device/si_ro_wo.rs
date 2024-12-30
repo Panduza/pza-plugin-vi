@@ -16,7 +16,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .create_attribute("si_ro")
         .with_ro()
         .with_info(r#"read command"#)
-        .finish_as_si("test", 0.0, 100.0, 2)
+        .finish_as_si("Ω", -20.0, 100.0, 2)
         .await?;
     att_si_ro.set_from_f32(0.0).await?;
 
@@ -26,7 +26,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .create_attribute("si_wo")
         .with_wo()
         .with_info(r#"write command"#)
-        .finish_as_si("test", 0.0, 100.0, 2)
+        .finish_as_si("Ω", -20.0, 100.0, 2)
         .await?;
 
     //
@@ -45,7 +45,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .create_attribute("si_rw")
         .with_rw()
         .with_info(r#"read write command"#)
-        .finish_as_si("test", 0.0, 100.0, 2)
+        .finish_as_si("Ω", -20.0, 100.0, 2)
         .await?;
     att_si_rw.set_from_f32(0.0).await?;
 

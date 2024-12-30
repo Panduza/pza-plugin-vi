@@ -32,7 +32,9 @@ impl DriverOperations for Device {
     async fn mount(&mut self, instance: Instance) -> Result<(), Error> {
         string_ro_wo::mount(instance.clone()).await?;
         bool_ro_wo::mount(instance.clone()).await?;
-        enum_ro_wo::mount(instance.clone()).await?;
+        enum_ro_wo::mount(instance.clone(), 0).await?;
+        enum_ro_wo::mount(instance.clone(), 1).await?;
+        enum_ro_wo::mount(instance.clone(), 2).await?;
         json_ro_wo::mount(instance.clone()).await?;
         number_ro_wo::mount(instance.clone()).await?;
         si_ro_wo::mount(instance.clone()).await?;
