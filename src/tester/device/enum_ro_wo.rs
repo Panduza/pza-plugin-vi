@@ -5,10 +5,10 @@ use panduza_platform_core::{
 ///
 ///
 ///
-pub async fn mount(mut instance: Instance) -> Result<(), Error> {
+pub async fn mount(mut instance: Instance, id: usize) -> Result<(), Error> {
     //
     // Create interface
-    let mut class = instance.create_class("enum").finish().await;
+    let mut class = instance.create_class(format!("enum_{}", id)).finish().await;
 
     //
     // Some of the first contributors (sorted by alphabetic order)
