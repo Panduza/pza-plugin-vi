@@ -6,6 +6,7 @@ panduza_platform_core::plugin_interface!("vi");
 //
 // Import modules
 mod daq;
+mod platform_logger;
 mod repl;
 mod tester;
 
@@ -16,6 +17,7 @@ pub fn plugin_producers() -> Vec<Box<dyn Producer>> {
     producers.push(repl::Package::default().boxed());
     producers.push(daq::Package::default().boxed());
     producers.push(tester::Package::default().boxed());
+    producers.push(platform_logger::Package::default().boxed());
     return producers;
 }
 
