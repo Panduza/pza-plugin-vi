@@ -16,9 +16,12 @@ impl DriverOperations for Device {
     async fn mount(&mut self, instance: Instance) -> Result<(), Error> {
         let mut instance_2 = instance.clone();
         spawn_loop!("test", instance_2, {
-            let counter: u64 = 0;
-            log_info!(instance.logger(), "Hello {}", counter);
-            tokio::time::sleep(Duration::from_secs(1)).await;
+            let mut counter: u64 = 0;
+            loop {
+                log_info!(instance.logger(), "Hello {}", counter);
+                tokio::time::sleep(Duration::from_secs(1)).await;
+                counter += 1;
+            }
         });
         Ok(())
     }
