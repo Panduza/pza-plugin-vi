@@ -6,7 +6,6 @@ mod eval_echo;
 
 #[derive(Default)]
 ///
-/// Device to control PicoHA SSB Board
 ///
 pub struct Device {}
 

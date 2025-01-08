@@ -5,6 +5,7 @@ panduza_platform_core::plugin_interface!("vi");
 
 //
 // Import modules
+mod boolean_vector;
 mod daq;
 mod platform_logger;
 mod repl;

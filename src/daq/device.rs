@@ -6,7 +6,6 @@ mod random_si_reader;
 
 #[derive(Default)]
 ///
-/// Device to control PicoHA SSB Board
 ///
 pub struct Device {}
 
