@@ -5,6 +5,7 @@ panduza_platform_core::plugin_interface!("vi");
 
 //
 // Import modules
+mod boolean_vector;
 mod daq;
 mod platform_logger;
 mod repl;
@@ -18,6 +19,7 @@ pub fn plugin_producers() -> Vec<Box<dyn Producer>> {
     producers.push(daq::Package::default().boxed());
     producers.push(tester::Package::default().boxed());
     producers.push(platform_logger::Package::default().boxed());
+    producers.push(boolean_vector::Package::default().boxed());
     return producers;
 }
 
