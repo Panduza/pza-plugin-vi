@@ -1,9 +1,14 @@
+mod controller;
 mod settings;
+
+use settings::Settings as ControlSettings;
+
 pub mod string_vector;
 
 use async_trait::async_trait;
 use panduza_platform_core::{
-    log_debug_mount_end, log_debug_mount_start, Container, DriverOperations, Error, Instance,
+    log_info, log_info_mount_end, log_info_mount_start, Container, DriverOperations, Error,
+    Instance,
 };
 use std::time::Duration;
 use tokio::time::sleep;
@@ -12,6 +17,28 @@ use tokio::time::sleep;
 ///
 ///
 pub struct Device {}
+
+impl Device {
+    ///
+    ///
+    pub async fn prepare_control_settings(
+        &mut self,
+        instance: Instance,
+    ) -> Result<ControlSettings, Error> {
+        //
+        //
+        let instance_settings = instance.settings().await;
+
+        //
+        //
+        let mut control_settings = ControlSettings::new();
+        control_settings.override_with_instance_settings(&instance_settings)?;
+
+        //
+        //
+        Ok(control_settings)
+    }
+}
 
 #[async_trait]
 impl DriverOperations for Device {
@@ -22,23 +49,20 @@ impl DriverOperations for Device {
         //
         // Start logging
         let logger = instance.logger();
-        log_debug_mount_start!(logger);
+        log_info_mount_start!(logger);
 
-        // let interface = random_si_reader::RandomSiReader::default().into_arc_mutex();
-        // panduza_platform_core::std::class::acq_si::mount(
-        //     "randommeter",
-        //     "Pika",
-        //     0.0,
-        //     0xffff as f64,
-        //     4,
-        //     instance.clone(),
-        //     interface.clone(),
-        // )
-        // .await?;
+        //
+        //
+        let control_settings = self.prepare_control_settings(instance.clone()).await?;
+        log_info!(logger, "control_settings = {:?}", control_settings);
+
+        for entry in control_settings.elements() {
+            controller::mount(entry, instance.clone()).await?;
+        }
 
         //
         // Ok
-        log_debug_mount_end!(logger);
+        log_info_mount_end!(logger);
         Ok(())
     }
     ///

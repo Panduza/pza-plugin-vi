@@ -6,11 +6,7 @@ cargo install cargo-post
 cargo post build --features plugin
 ```
 
-
-
-
 # full usage
-
 
 ```json
 {
@@ -26,3 +22,28 @@ cargo post build --features plugin
     ]
 }
 ```
+
+# Boolean Vector Emulation
+
+You can provides a list of name to this driver.
+
+It will generate as many boolean as names you provided.
+
+```json
+{
+    "devices": [
+        {
+            "dref": "vi.boolean_vector",
+            "name": "virtual",
+            "settings": {
+                "elements": [
+                    "sensor",
+                    "relais",
+                    "f002"
+                ]
+            }
+        }
+    ]
+}
+```
+

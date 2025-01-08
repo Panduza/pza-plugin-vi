@@ -53,11 +53,13 @@ impl Settings {
                             Some(
                                 v.into_iter()
                                     .map(|value| match value {
-                                        Value::String(s) => Ok(s),
-                                        _ => {
+                                        Value::String(s) => s.clone(),
+                                        Value::Number(n) => n.to_string(),
+                                        unmanaged => {
                                             if let Some(logger) = &self.logger {
-                                                log_warn!(self.logger, "{:?} not managed", value);
+                                                log_warn!(logger, "{:?} not managed", unmanaged);
                                             }
+                                            "error".to_string()
                                         }
                                     })
                                     .collect(),
@@ -65,33 +67,10 @@ impl Settings {
                         })
                     });
                     if let Some(v) = value {
-                        if v >= self.default_min {
-                            self.min = v;
-                        } else {
-                            if let Some(logger) = &self.logger {
-                                log_error!(
-                                    logger,
-                                    "{} is lower than default {} < {}",
-                                    &self.name,
-                                    v,
-                                    self.default_min
-                                );
-                            }
-                            return Err(format_settings_error!(
-                                "{} is lower than default {} < {}",
-                                &self.name,
-                                v,
-                                self.default_min
-                            ));
-                        }
+                        self.values = v;
                     } else {
                         if let Some(logger) = &self.logger {
-                            log_warn!(
-                                logger,
-                                "{} is not in settings, use default value {}",
-                                &self.name,
-                                self.default_min
-                            );
+                            log_warn!(logger, "{} is not in settings", &self.name);
                         }
                     }
                 }
