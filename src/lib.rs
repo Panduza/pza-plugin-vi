@@ -10,6 +10,7 @@ mod daq;
 mod platform_logger;
 mod repl;
 mod tester;
+mod waveform;
 
 //
 // Export the producers of the plugin
@@ -20,6 +21,7 @@ pub fn plugin_producers() -> Vec<Box<dyn Producer>> {
     producers.push(tester::Package::default().boxed());
     producers.push(platform_logger::Package::default().boxed());
     producers.push(boolean_vector::Package::default().boxed());
+    producers.push(waveform::Package::default().boxed());
     return producers;
 }
 
