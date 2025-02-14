@@ -28,7 +28,7 @@ impl DriverOperations for Device {
             .finish_as_sample()
             .await?;
 
-        let number_of_point = 2000;
+        let number_of_point = 6000;
         let step = 0.05;
 
         let mut data = Vec::new();
