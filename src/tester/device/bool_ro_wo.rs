@@ -1,6 +1,4 @@
-use panduza_platform_core::{
-    log_info, spawn_on_command, BooleanAttServer, Container, Error, Instance,
-};
+use panduza_platform_core::{log_info, Container, Error, Instance};
 
 ///
 ///
@@ -66,15 +64,15 @@ Italicized text is the _cat's meow_.
         .finish_as_boolean()
         .await?;
 
-    //
-    //
-    let att_boolean_wo_2 = att_boolean_wo.clone();
-    spawn_on_command!(
-        "on_command",
-        instance,
-        att_boolean_wo_2,
-        on_command(att_boolean_ro.clone(), att_boolean_wo_2.clone())
-    );
+    // //
+    // //
+    // let att_boolean_wo_2 = att_boolean_wo.clone();
+    // spawn_on_command!(
+    //     "on_command",
+    //     instance,
+    //     att_boolean_wo_2,
+    //     on_command(att_boolean_ro.clone(), att_boolean_wo_2.clone())
+    // );
 
     //
     //
@@ -102,40 +100,40 @@ My favorite search engine is [Duck Duck Go](https://duckduckgo.com).
         .await?;
     att_boolean_rw.set(false).await?;
 
-    //
-    //
-    let att_boolean_rw_2 = att_boolean_rw.clone();
-    spawn_on_command!(
-        "on_command => boolean_rw",
-        instance,
-        att_boolean_rw_2,
-        on_command_rw(att_boolean_rw_2.clone())
-    );
+    // //
+    // //
+    // let att_boolean_rw_2 = att_boolean_rw.clone();
+    // spawn_on_command!(
+    //     "on_command => boolean_rw",
+    //     instance,
+    //     att_boolean_rw_2,
+    //     on_command_rw(att_boolean_rw_2.clone())
+    // );
 
     Ok(())
 }
 
-///
-///
-///
-async fn on_command(
-    att_boolean_ro: BooleanAttServer,
-    mut att_boolean_wo: BooleanAttServer,
-) -> Result<(), Error> {
-    while let Some(command) = att_boolean_wo.pop_cmd().await {
-        log_info!(att_boolean_wo.logger(), "command recieved - {:?}", command);
-        att_boolean_ro.set(command).await?;
-    }
-    Ok(())
-}
+// ///
+// ///
+// ///
+// async fn on_command(
+//     att_boolean_ro: BooleanAttServer,
+//     mut att_boolean_wo: BooleanAttServer,
+// ) -> Result<(), Error> {
+//     while let Some(command) = att_boolean_wo.pop_cmd().await {
+//         log_info!(att_boolean_wo.logger(), "command recieved - {:?}", command);
+//         att_boolean_ro.set(command).await?;
+//     }
+//     Ok(())
+// }
 
-///
-///
-///
-async fn on_command_rw(mut att_boolean_rw: BooleanAttServer) -> Result<(), Error> {
-    while let Some(command) = att_boolean_rw.pop_cmd().await {
-        log_info!(att_boolean_rw.logger(), "command recieved - {:?}", command);
-        att_boolean_rw.set(command).await?;
-    }
-    Ok(())
-}
+// ///
+// ///
+// ///
+// async fn on_command_rw(mut att_boolean_rw: BooleanAttServer) -> Result<(), Error> {
+//     while let Some(command) = att_boolean_rw.pop_cmd().await {
+//         log_info!(att_boolean_rw.logger(), "command recieved - {:?}", command);
+//         att_boolean_rw.set(command).await?;
+//     }
+//     Ok(())
+// }

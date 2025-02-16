@@ -9,7 +9,7 @@ panduza_platform_core::plugin_interface!("vi", "0.0.0");
 // mod daq;
 mod platform_logger;
 // mod repl;
-// mod tester;
+mod tester;
 
 //
 // Export the producers of the plugin

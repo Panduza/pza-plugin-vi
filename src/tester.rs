@@ -1,5 +1,5 @@
 pub mod device;
-use panduza_platform_core::{DriverOperations, Producer};
+use panduza_platform_core::{Actions, Producer};
 
 #[derive(Default)]
 pub struct Package {}
@@ -27,7 +27,7 @@ impl Producer for Package {
         panduza_platform_core::Props::default()
     }
 
-    fn produce(&self) -> Result<Box<dyn DriverOperations>, panduza_platform_core::Error> {
+    fn produce(&self) -> Result<Box<dyn Actions>, panduza_platform_core::Error> {
         return Ok(Box::new(device::Device::new()));
     }
 }
