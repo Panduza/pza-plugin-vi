@@ -17,7 +17,7 @@ pub fn plugin_producers() -> Vec<Box<dyn Producer>> {
     let mut producers: Vec<Box<dyn Producer>> = vec![];
     // producers.push(repl::Package::default().boxed());
     // producers.push(daq::Package::default().boxed());
-    // producers.push(tester::Package::default().boxed());
+    producers.push(tester::Package::default().boxed());
     producers.push(platform_logger::Package::default().boxed());
     // producers.push(boolean_vector::Package::default().boxed());
     return producers;

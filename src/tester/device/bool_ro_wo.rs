@@ -1,4 +1,6 @@
-use panduza_platform_core::{log_info, Container, Error, Instance};
+use panduza_platform_core::{
+    log_debug_mount_end, log_debug_mount_start, log_info, Container, Error, Instance,
+};
 
 ///
 ///
@@ -7,6 +9,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     // Create interface
     let mut class = instance.create_class("boolean").finish().await;
+    log_debug_mount_start!(class.logger());
 
     //
     //
@@ -112,5 +115,6 @@ et en étudiant tous les usages de ce mot dans la littérature classique.
         }
     });
 
+    log_debug_mount_end!(class.logger());
     Ok(())
 }
