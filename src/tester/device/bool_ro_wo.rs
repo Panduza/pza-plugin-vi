@@ -109,7 +109,7 @@ et en étudiant tous les usages de ce mot dans la littérature classique.
         loop {
             att_boolean_rw.wait_for_commands().await;
             while let Some(command) = att_boolean_rw.pop().await {
-                log_info!(att_boolean_rw.logger(), "command recieved - {:?}", command);
+                // log_info!(att_boolean_rw.logger(), "command recieved - {:?}", command);
                 att_boolean_rw.set(command).await.unwrap();
             }
         }
