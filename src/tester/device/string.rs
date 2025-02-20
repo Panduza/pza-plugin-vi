@@ -1,6 +1,4 @@
-use panduza_platform_core::{
-    log_info, spawn_on_command, Container, Error, Instance, StringAttServer,
-};
+use panduza_platform_core::{log_info, Container, Error, Instance};
 
 ///
 ///
@@ -16,7 +14,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .create_attribute("string_ro")
         .with_ro()
         .with_info(r#"read command"#)
-        .finish_as_string()
+        .start_as_string()
         .await?;
 
     //
@@ -29,7 +27,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .create_attribute("string_wo")
         .with_wo()
         .with_info(r#"write command"#)
-        .finish_as_string()
+        .start_as_string()
         .await?;
 
     //
@@ -48,7 +46,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .create_attribute("string_rw")
         .with_rw()
         .with_info(r#"read write command"#)
-        .finish_as_string()
+        .start_as_string()
         .await?;
     att_string_rw.set("test".to_string()).await?;
 
