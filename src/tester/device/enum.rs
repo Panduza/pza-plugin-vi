@@ -1,6 +1,4 @@
-use panduza_platform_core::{
-    log_error, log_info, spawn_on_command, Container, EnumAttServer, Error, Instance,
-};
+use panduza_platform_core::{log_error, log_info, Container, EnumAttServer, Error, Instance};
 
 ///
 ///
@@ -31,7 +29,7 @@ pub async fn mount(mut instance: Instance, id: usize) -> Result<(), Error> {
         .create_attribute("enum_ro")
         .with_ro()
         .with_info(r#"read command"#)
-        .finish_as_enum(choices.clone())
+        .start_as_enum(choices.clone())
         .await?;
     att_enum_ro.set(choices.get(0).unwrap().clone()).await?;
 
@@ -41,7 +39,7 @@ pub async fn mount(mut instance: Instance, id: usize) -> Result<(), Error> {
         .create_attribute("enum_wo")
         .with_wo()
         .with_info(r#"write command"#)
-        .finish_as_enum(choices.clone())
+        .start_as_enum(choices.clone())
         .await?;
 
     //
@@ -60,7 +58,7 @@ pub async fn mount(mut instance: Instance, id: usize) -> Result<(), Error> {
         .create_attribute("enum_rw")
         .with_rw()
         .with_info(r#"read write command"#)
-        .finish_as_enum(choices.clone())
+        .start_as_enum(choices.clone())
         .await?;
     att_enum_rw.set(choices.get(0).unwrap().clone()).await?;
 

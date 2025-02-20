@@ -1,11 +1,7 @@
-// mod datatype;
 mod boolean;
-// mod enum_ro_wo;
+mod r#enum;
 mod json;
-// mod number_ro_wo;
-// mod si_ro_wo;
 mod string;
-
 use async_trait::async_trait;
 use panduza_platform_core::{Actions, Error, Instance};
 use std::time::Duration;
