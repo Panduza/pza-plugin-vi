@@ -28,13 +28,8 @@ impl Actions for Device {
     async fn mount(&mut self, instance: Instance) -> Result<(), Error> {
         string::mount(instance.clone()).await?;
         boolean::mount(instance.clone()).await?;
-        // enum_ro_wo::mount(instance.clone(), 0).await?;
-        // enum_ro_wo::mount(instance.clone(), 1).await?;
-        // enum_ro_wo::mount(instance.clone(), 2).await?;
+        r#enum::mount(instance.clone()).await?;
         json::mount(instance.clone()).await?;
-        // number_ro_wo::mount(instance.clone()).await?;
-        // si_ro_wo::mount(instance.clone()).await?;
-
         Ok(())
     }
     ///

@@ -1,12 +1,11 @@
-use panduza_platform_core::{log_error, log_info, Container, EnumAttServer, Error, Instance};
+use panduza_platform_core::{log_error, log_info, Container, Error, Instance};
 
 ///
 ///
-///
-pub async fn mount(mut instance: Instance, id: usize) -> Result<(), Error> {
+pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     // Create interface
-    let mut class = instance.create_class(format!("enum_{}", id)).finish().await;
+    let mut class = instance.create_class(format!("enum")).finish().await;
 
     //
     // Some of the first contributors (sorted by alphabetic order)
@@ -35,7 +34,7 @@ pub async fn mount(mut instance: Instance, id: usize) -> Result<(), Error> {
 
     //
     //
-    let att_enum_wo = class
+    let mut att_enum_wo = class
         .create_attribute("enum_wo")
         .with_wo()
         .with_info(r#"write command"#)
@@ -44,17 +43,19 @@ pub async fn mount(mut instance: Instance, id: usize) -> Result<(), Error> {
 
     //
     //
-    let att_enum_wo_2 = att_enum_wo.clone();
-    spawn_on_command!(
-        "on_command",
-        instance,
-        att_enum_wo_2,
-        on_command(att_enum_ro.clone(), att_enum_wo_2.clone())
-    );
+    tokio::spawn(async move {
+        loop {
+            att_enum_wo.wait_for_commands().await;
+            while let Some(command) = att_enum_wo.pop().await {
+                log_info!(att_enum_wo.logger(), "command recieved - {:?}", command);
+                att_enum_ro.set(command).await.unwrap();
+            }
+        }
+    });
 
     //
     //
-    let att_enum_rw = class
+    let mut att_enum_rw = class
         .create_attribute("enum_rw")
         .with_rw()
         .with_info(r#"read write command"#)
@@ -64,53 +65,15 @@ pub async fn mount(mut instance: Instance, id: usize) -> Result<(), Error> {
 
     //
     //
-    let att_enum_rw_2 = att_enum_rw.clone();
-    spawn_on_command!(
-        "on_command => enum_rw",
-        instance,
-        att_enum_rw_2,
-        on_command_rw(att_enum_rw_2.clone())
-    );
-
-    Ok(())
-}
-
-///
-///
-///
-async fn on_command(
-    att_enum_ro: EnumAttServer,
-    mut att_enum_wo: EnumAttServer,
-) -> Result<(), Error> {
-    while let Some(command) = att_enum_wo.pop_cmd().await {
-        match command {
-            Ok(c) => {
-                log_info!(att_enum_ro.logger(), "command recieved - {:?}", c);
-                att_enum_ro.set(c).await?;
-            }
-            Err(e) => {
-                log_error!(att_enum_ro.logger(), "command recieved err - {:?}", e);
+    tokio::spawn(async move {
+        loop {
+            att_enum_rw.wait_for_commands().await;
+            while let Some(command) = att_enum_rw.pop().await {
+                log_info!(att_enum_rw.logger(), "command recieved - {:?}", command);
+                att_enum_rw.set(command).await.unwrap();
             }
         }
-    }
+    });
 
-    Ok(())
-}
-
-///
-///
-///
-async fn on_command_rw(mut att_enum_rw: EnumAttServer) -> Result<(), Error> {
-    while let Some(command) = att_enum_rw.pop_cmd().await {
-        match command {
-            Ok(c) => {
-                log_info!(att_enum_rw.logger(), "command recieved - {:?}", c);
-                att_enum_rw.set(c).await?;
-            }
-            Err(e) => {
-                log_error!(att_enum_rw.logger(), "command recieved err - {:?}", e);
-            }
-        }
-    }
     Ok(())
 }
