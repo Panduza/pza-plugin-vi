@@ -26,10 +26,10 @@ impl Actions for Device {
     ///
     ///
     async fn mount(&mut self, instance: Instance) -> Result<(), Error> {
-        string::mount(instance.clone()).await?;
+        // string::mount(instance.clone()).await?;
         boolean::mount(instance.clone()).await?;
-        r#enum::mount(instance.clone()).await?;
-        json::mount(instance.clone()).await?;
+        // r#enum::mount(instance.clone()).await?;
+        // json::mount(instance.clone()).await?;
         Ok(())
     }
     ///
