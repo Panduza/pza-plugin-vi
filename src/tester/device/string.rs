@@ -10,7 +10,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let att_string_ro = class
-        .create_attribute("string_ro")
+        .create_attribute("ro")
         .with_ro()
         .with_info(r#"read command"#)
         .start_as_string()
@@ -23,7 +23,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let mut att_string_wo = class
-        .create_attribute("string_wo")
+        .create_attribute("wo")
         .with_wo()
         .with_info(r#"write command"#)
         .start_as_string()
@@ -44,7 +44,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let mut att_string_rw = class
-        .create_attribute("string_rw")
+        .create_attribute("rw")
         .with_rw()
         .with_info(r#"read write command"#)
         .start_as_string()

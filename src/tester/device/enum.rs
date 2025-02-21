@@ -25,7 +25,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let att_enum_ro = class
-        .create_attribute("enum_ro")
+        .create_attribute("ro")
         .with_ro()
         .with_info(r#"read command"#)
         .start_as_enum(choices.clone())
@@ -35,7 +35,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let mut att_enum_wo = class
-        .create_attribute("enum_wo")
+        .create_attribute("wo")
         .with_wo()
         .with_info(r#"write command"#)
         .start_as_enum(choices.clone())
@@ -56,7 +56,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let mut att_enum_rw = class
-        .create_attribute("enum_rw")
+        .create_attribute("rw")
         .with_rw()
         .with_info(r#"read write command"#)
         .start_as_enum(choices.clone())

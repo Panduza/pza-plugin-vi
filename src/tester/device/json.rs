@@ -12,7 +12,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let att_json_ro = class
-        .create_attribute("json_ro")
+        .create_attribute("ro")
         .with_ro()
         .with_info(r#"read command"#)
         .start_as_json()
@@ -22,7 +22,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let mut att_json_wo = class
-        .create_attribute("json_wo")
+        .create_attribute("wo")
         .with_wo()
         .with_info(r#"write command"#)
         .start_as_json()
@@ -43,7 +43,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let mut att_json_rw = class
-        .create_attribute("json_rw")
+        .create_attribute("rw")
         .with_rw()
         .with_info(r#"read write command"#)
         .start_as_json()

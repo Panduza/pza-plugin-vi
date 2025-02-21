@@ -14,7 +14,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     let att_boolean_ro = class
-        .create_attribute("boolean_ro")
+        .create_attribute("ro")
         .with_ro()
         .with_info(r#"read command
 
@@ -38,7 +38,7 @@ et en étudiant tous les usages de ce mot dans la littérature classique.
     //
     //
     let mut att_boolean_wo = class
-        .create_attribute("boolean_wo")
+        .create_attribute("wo")
         .with_wo()
         .with_info(
             r#"write command
@@ -80,7 +80,7 @@ et en étudiant tous les usages de ce mot dans la littérature classique.
     //
     //
     let mut att_boolean_rw = class
-        .create_attribute("boolean_rw")
+        .create_attribute("rw")
         .with_rw()
         .with_info(
             r#"read write command

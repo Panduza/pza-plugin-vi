@@ -1,6 +1,7 @@
 mod boolean;
 mod r#enum;
 mod json;
+mod sample;
 mod string;
 use async_trait::async_trait;
 use panduza_platform_core::{Actions, Error, Instance};
@@ -30,6 +31,7 @@ impl Actions for Device {
         boolean::mount(instance.clone()).await?;
         // r#enum::mount(instance.clone()).await?;
         json::mount(instance.clone()).await?;
+        sample::mount(instance.clone()).await?;
         Ok(())
     }
     ///
