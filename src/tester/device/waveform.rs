@@ -18,7 +18,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    let att_sample_ro = class
+    let att_samples = class
         .create_attribute("samples")
         .with_ro()
         .with_info(
@@ -27,35 +27,48 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         )
         .start_as_vector_f32()
         .await?;
-    att_sample_ro.set(&vec![0.0; 1]).await?;
+    att_samples.set(&vec![0.0; 1]).await?;
 
     //
     //
-    tokio::spawn(async move {
-        let mut number_of_point = 500;
-        loop {
-            let step = 0.05;
+    let att_trigger = class
+        .create_attribute("trigger")
+        .with_ro()
+        .with_info(
+            r#"---
+        "#,
+        )
+        .start_as_vector_f32()
+        .await?;
+    att_triggerset(&vec![0.0; 1]).await?;
 
-            let mut data = Vec::new();
-            for i in 0..number_of_point {
-                data.push(f32::sin(i as f32 * step));
-            }
+    // //
+    // //
+    // tokio::spawn(async move {
+    //     let mut number_of_point = 500;
+    //     loop {
+    //         let step = 0.05;
 
-            log_info!(
-                att_sample_ro.logger(),
-                "shoot {:?} ! {:?}bytes",
-                number_of_point,
-                number_of_point * size_of::<f32>()
-            );
+    //         let mut data = Vec::new();
+    //         for i in 0..number_of_point {
+    //             data.push(f32::sin(i as f32 * step));
+    //         }
 
-            att_sample_ro.set(&data).await.unwrap();
+    //         log_info!(
+    //             att_samples.logger(),
+    //             "shoot {:?} ! {:?}bytes",
+    //             number_of_point,
+    //             number_of_point * size_of::<f32>()
+    //         );
 
-            tokio::time::sleep(Duration::from_secs(1)).await;
+    //         att_samples.set(&data).await.unwrap();
 
-            number_of_point += 500;
-            number_of_point %= 10000;
-        }
-    });
+    //         tokio::time::sleep(Duration::from_secs(1)).await;
+
+    //         number_of_point += 500;
+    //         number_of_point %= 10000;
+    //     }
+    // });
 
     log_debug_mount_end!(class.logger());
     Ok(())
