@@ -33,42 +33,50 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     let att_trigger = class
         .create_attribute("trigger")
-        .with_ro()
+        .with_rw()
         .with_info(
             r#"---
         "#,
         )
-        .start_as_vector_f32()
+        .start_as_trigger()
         .await?;
-    att_triggerset(&vec![0.0; 1]).await?;
+    att_trigger.set(0.0).await?;
 
-    // //
-    // //
-    // tokio::spawn(async move {
-    //     let mut number_of_point = 500;
-    //     loop {
-    //         let step = 0.05;
+    // att_trigger.wait_for_commands().await
 
-    //         let mut data = Vec::new();
-    //         for i in 0..number_of_point {
-    //             data.push(f32::sin(i as f32 * step));
-    //         }
+    // if let Some(o) = att_trigger.pop().await {
+    //     let tt = o.object();
+    //     tt.refresh()
+    //     tt.options().unwrap().r
+    // }
 
-    //         log_info!(
-    //             att_samples.logger(),
-    //             "shoot {:?} ! {:?}bytes",
-    //             number_of_point,
-    //             number_of_point * size_of::<f32>()
-    //         );
+    //
+    //
+    tokio::spawn(async move {
+        let mut number_of_point = 500;
+        loop {
+            let step = 0.05;
 
-    //         att_samples.set(&data).await.unwrap();
+            let mut data = Vec::new();
+            for i in 0..number_of_point {
+                data.push(f32::sin(i as f32 * step));
+            }
 
-    //         tokio::time::sleep(Duration::from_secs(1)).await;
+            log_info!(
+                att_samples.logger(),
+                "shoot {:?} ! {:?}bytes",
+                number_of_point,
+                number_of_point * size_of::<f32>()
+            );
 
-    //         number_of_point += 500;
-    //         number_of_point %= 10000;
-    //     }
-    // });
+            att_samples.set(&data).await.unwrap();
+
+            tokio::time::sleep(Duration::from_secs(1)).await;
+
+            number_of_point += 500;
+            number_of_point %= 10000;
+        }
+    });
 
     log_debug_mount_end!(class.logger());
     Ok(())
