@@ -9,19 +9,23 @@ use panduza_platform_core::{
 pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     // Create interface
-    let mut class = instance.create_class("sample").finish().await;
+    let mut class = instance
+        .create_class("waveform")
+        .with_tag("waveform")
+        .finish()
+        .await;
     log_debug_mount_start!(class.logger());
 
     //
     //
     let att_sample_ro = class
-        .create_attribute("ro")
+        .create_attribute("samples")
         .with_ro()
         .with_info(
             r#"---
         "#,
         )
-        .start_as_sample()
+        .start_as_vector_f32()
         .await?;
     att_sample_ro.set(&vec![0.0; 1]).await?;
 
