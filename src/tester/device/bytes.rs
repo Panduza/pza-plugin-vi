@@ -18,7 +18,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    att_bytes_ro.set(16).await?;
+    att_bytes_ro.set(vec![0; 16 * 1024]).await?;
 
     //
     //
@@ -49,7 +49,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .with_info(r#"read write command"#)
         .start_as_bytes()
         .await?;
-    att_bytes_rw.set(16).await?;
+    att_bytes_rw.set(vec![0; 16 * 1024]).await?;
 
     //
     //
