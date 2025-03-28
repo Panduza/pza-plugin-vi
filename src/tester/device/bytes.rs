@@ -2,11 +2,7 @@ use panduza_platform_core::{log_info, Container, Error, Instance};
 
 //
 //
-pub async fn mount(mut instance: Instance) -> Result<(), Error> {
-    //
-    //
-    let number_of_classes = 1;
-
+pub async fn mount(mut instance: Instance, number_of_classes: i16) -> Result<(), Error> {
     //
     //
     for i in 1..=number_of_classes {
