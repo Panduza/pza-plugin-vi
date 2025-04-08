@@ -34,7 +34,7 @@ impl Actions for Device {
         waveform::mount(instance.clone()).await?;
         json::mount(instance.clone()).await?;
         vector_f32::mount(instance.clone()).await?;
-        bytes::mount(instance.clone(), 20).await?;
+        bytes::mount(instance.clone(), 1).await?;
         Ok(())
     }
     ///
