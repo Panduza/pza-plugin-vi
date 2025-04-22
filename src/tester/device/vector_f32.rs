@@ -1,3 +1,6 @@
+use core::f32;
+use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
 use std::time::Duration;
 
 use panduza_platform_core::{
@@ -28,28 +31,35 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     //
     tokio::spawn(async move {
-        let mut number_of_point = 500;
+        let amp = 2.0; // Amplitude
+        let f = 0.1; // Frequency Hz
+        let deltat = 20; // Sampling period ms
+        let number_of_point = 1000;
+        let mut last_x = 0;
+        let mut rng = StdRng::from_entropy();
+
         loop {
-            let step = 0.05;
+            let step = deltat as f32 * 1.0e-3;
 
             let mut data = Vec::new();
-            for i in 0..number_of_point {
-                data.push(f32::sin(i as f32 * step));
+            for i in last_x..(last_x + number_of_point) {
+                let noise: f32 = rng.gen::<f32>() / 5.0;
+
+                // log_info!(att_sample_ro.logger(), "throw {:?}", throw,);
+                data.push(amp * f32::sin(i as f32 * 2.0 * f32::consts::PI * f * step) + noise);
             }
 
             log_info!(
                 att_sample_ro.logger(),
                 "shoot {:?} ! {:?}bytes",
-                number_of_point,
-                number_of_point * size_of::<f32>()
+                last_x,
+                number_of_point * std::mem::size_of::<f32>()
             );
 
             att_sample_ro.set(&data).await.unwrap();
 
-            tokio::time::sleep(Duration::from_secs(1)).await;
-
-            number_of_point += 500;
-            number_of_point %= 10000;
+            last_x += number_of_point;
+            tokio::time::sleep(Duration::from_millis(deltat)).await;
         }
     });
 
