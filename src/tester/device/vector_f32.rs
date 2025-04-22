@@ -46,7 +46,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
             att_sample_ro.set(&data).await.unwrap();
 
-            tokio::time::sleep(Duration::from_secs(1)).await;
+            tokio::time::sleep(Duration::from_secs(0.1)).await;
 
             number_of_point += 500;
             number_of_point %= 10000;
