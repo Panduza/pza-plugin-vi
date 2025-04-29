@@ -109,6 +109,45 @@ This attribute is used to test boolean values in the system. It is a read-write 
         }
     });
 
+    //
+    // Create a write-only boolean attribute for error simulation
+    let mut att_boolean_error = class
+        .create_attribute("error")
+        .with_wo()
+        .with_info(r#"# Error Simulation Attribute
+
+This attribute is used to simulate error scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
+
+## Purpose
+
+- To test the system's behavior when errors are triggered.
+- To ensure proper handling of unexpected conditions.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: Writing to this attribute triggers an error for testing purposes.
+
+### Additional Notes
+
+- This attribute is intended for testing and debugging only.
+- Use with caution as it will intentionally cause a panic.
+        "#)
+        .start_as_boolean()
+        .await?;
+
+    //
+    // Spawn a task to handle write-only attribute commands for error simulation
+    tokio::spawn(async move {
+        loop {
+            att_boolean_error.wait_for_commands().await;
+            while let Some(_) = att_boolean_error.pop().await {
+                log_info!(att_boolean_error.logger(), "Error simulation triggered");
+                panic!("Simulated error triggered for testing purposes");
+            }
+        }
+    });
+
     // Finalize the mounting process
     log_debug_mount_end!(class.logger());
     Ok(())
