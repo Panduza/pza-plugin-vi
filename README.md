@@ -6,6 +6,25 @@ cargo install cargo-post
 cargo post build --features plugin
 ```
 
+# Tester
+
+The attribute tester is used as a validation tool.
+
+It mounts all the possible attribute types and modes.
+
+This driver is very important and any change on this driver must be validated by the core team.
+
+```json
+{
+    "devices": [
+        {
+            "name": "Attribute Tester",
+            "dref": "vi.tester"
+        }
+    ]
+}
+```
+
 # full usage
 
 ```json

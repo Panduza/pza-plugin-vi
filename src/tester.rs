@@ -1,4 +1,4 @@
-pub mod device;
+mod device;
 use panduza_platform_core::{Actions, Producer};
 
 #[derive(Default)]
