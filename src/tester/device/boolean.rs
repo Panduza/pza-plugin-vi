@@ -57,7 +57,7 @@ This attribute is used to test boolean values in the system. It is a write-only 
 
     //
     // Spawn a task to handle write-only attribute commands
-    tokio::spawn(async move {
+    let handler_att_wo = tokio::spawn(async move {
         loop {
             att_boolean_wo.wait_for_commands().await;
             while let Some(command) = att_boolean_wo.pop().await {
@@ -66,6 +66,9 @@ This attribute is used to test boolean values in the system. It is a write-only 
             }
         }
     });
+    instance
+        .monitor_task("tester/boolean/wo".to_string(), handler_att_wo)
+        .await;
 
     //
     // Create a read-write boolean attribute
@@ -99,7 +102,7 @@ This attribute is used to test boolean values in the system. It is a read-write 
 
     //
     // Spawn a task to handle read-write attribute commands
-    tokio::spawn(async move {
+    let handler_att_rw = tokio::spawn(async move {
         loop {
             att_boolean_rw.wait_for_commands().await;
             while let Some(command) = att_boolean_rw.pop().await {
@@ -108,6 +111,9 @@ This attribute is used to test boolean values in the system. It is a read-write 
             }
         }
     });
+    instance
+        .monitor_task("tester/boolean/rw".to_string(), handler_att_rw)
+        .await;
 
     //
     // Create a write-only boolean attribute for error simulation
@@ -138,7 +144,7 @@ This attribute is used to simulate error scenarios in the system. It is a write-
 
     //
     // Spawn a task to handle write-only attribute commands for error simulation
-    tokio::spawn(async move {
+    let handler_att_error = tokio::spawn(async move {
         loop {
             att_boolean_error.wait_for_commands().await;
             while let Some(_) = att_boolean_error.pop().await {
@@ -147,6 +153,9 @@ This attribute is used to simulate error scenarios in the system. It is a write-
             }
         }
     });
+    instance
+        .monitor_task("tester/boolean/error".to_string(), handler_att_error)
+        .await;
 
     // Finalize the mounting process
     log_debug_mount_end!(class.logger());
