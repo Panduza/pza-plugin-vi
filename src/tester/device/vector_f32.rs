@@ -27,7 +27,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handle = tokio::spawn(async move {
         let mut number_of_point = 500;
         loop {
             let step = 0.05;
@@ -52,6 +52,9 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             number_of_point %= 10000;
         }
     });
+    instance
+        .monitor_task("tester/vector/simulation".to_string(), handle)
+        .await;
 
     log_debug_mount_end!(class.logger());
     Ok(())

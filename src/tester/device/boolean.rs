@@ -1,6 +1,9 @@
-use panduza_platform_core::{
-    log_debug_mount_end, log_debug_mount_start, log_info, Container, Error, Instance,
-};
+use panduza_platform_core::log_debug_mount_end;
+use panduza_platform_core::log_debug_mount_start;
+use panduza_platform_core::log_info;
+use panduza_platform_core::Container;
+use panduza_platform_core::Error;
+use panduza_platform_core::Instance;
 
 /// This module contains the implementation of the boolean attribute test.
 ///
