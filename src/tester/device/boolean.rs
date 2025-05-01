@@ -7,7 +7,7 @@ use panduza_platform_core::Instance;
 
 /// This module contains the implementation of the boolean attribute test.
 ///
-pub async fn mount(mut instance: Instance) -> Result<(), Error> {
+pub async fn mount(mut instance: Instance, overload: Option<usize>) -> Result<(), Error> {
     //
     // Create interface
     let mut class = instance.create_class("boolean").finish().await;
@@ -159,6 +159,39 @@ This attribute is used to simulate error scenarios in the system. It is a write-
     instance
         .monitor_task("tester/boolean/error".to_string(), handler_att_error)
         .await;
+
+    //
+    // if overload is set, create as may rw attributes as overload number
+    if let Some(overload) = overload {
+        for i in 0..overload {
+            let mut att_boolean_overload = class
+                .create_attribute(format!("overload_rw_{}", i))
+                .with_rw()
+                .with_info(&format!("Overload attribute number {}", i))
+                .start_as_boolean()
+                .await?;
+            att_boolean_overload.set(false).await?;
+            let handler_att_overload = tokio::spawn(async move {
+                loop {
+                    att_boolean_overload.wait_for_commands().await;
+                    while let Some(command) = att_boolean_overload.pop().await {
+                        log_info!(
+                            att_boolean_overload.logger(),
+                            "command received - {:?}",
+                            command
+                        );
+                        att_boolean_overload.set(command).await.unwrap();
+                    }
+                }
+            });
+            instance
+                .monitor_task(
+                    format!("tester/boolean/overload_rw_{}", i),
+                    handler_att_overload,
+                )
+                .await;
+        }
+    }
 
     // Finalize the mounting process
     log_debug_mount_end!(class.logger());
