@@ -119,6 +119,50 @@ This attribute is used to test boolean values in the system. It is a read-write 
         .await;
 
     //
+    // Create a write-only boolean attribute for alert simulation
+    let mut att_boolean_alert = class
+        .create_attribute("alert")
+        .with_wo()
+        .with_info(r#"# Alert Simulation Attribute
+
+This attribute is used to simulate alert scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
+
+## Purpose
+
+- To test the system's behavior when alerts are triggered.
+- To ensure proper handling of alert conditions.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: Writing to this attribute triggers an alert for testing purposes.
+
+### Additional Notes
+
+- This attribute is intended for testing and debugging only.
+- Use with caution as it will intentionally trigger an alert.
+        "#)
+        .start_as_boolean()
+        .await?;
+
+    //
+    // Spawn a task to handle write-only attribute commands for alert simulation
+    let handler_att_alert = tokio::spawn(async move {
+        loop {
+            att_boolean_alert.wait_for_commands().await;
+            while let Some(_) = att_boolean_alert.pop().await {
+                log_info!(att_boolean_alert.logger(), "Alert simulation triggered");
+                att_boolean_alert
+                    .trigger_alert("Simulated alert triggered for testing purposes")
+                    .await;
+            }
+        }
+    });
+    instance
+        .monitor_task("tester/boolean/alert".to_string(), handler_att_alert)
+        .await;
+
+    //
     // Create a write-only boolean attribute for error simulation
     let mut att_boolean_error = class
         .create_attribute("error")
