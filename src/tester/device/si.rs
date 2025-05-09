@@ -15,7 +15,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .create_attribute("ro")
         .with_ro()
         .with_info(r#"read command"#)
-        .start_as_si("Ω", -20.0, 100.0, 2)
+        .start_as_si("Ω", -20.0, 100000.0, 2)
         .await?;
     att_si_ro.set(NumberBuffer::from(0.0)).await?;
 
@@ -25,7 +25,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .create_attribute("wo")
         .with_wo()
         .with_info(r#"write command"#)
-        .start_as_si("Ω", -20.0, 100.0, 2)
+        .start_as_si("Ω", -20.0, 100000.0, 2)
         .await?;
 
     tokio::spawn(async move {
@@ -44,7 +44,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .create_attribute("rw")
         .with_rw()
         .with_info(r#"read write command"#)
-        .start_as_si("Ω", -20.0, 100.0, 2)
+        .start_as_si("Ω", -20.0, 100000.0, 2)
         .await?;
     att_si_rw.set(NumberBuffer::from(0.0)).await?;
 

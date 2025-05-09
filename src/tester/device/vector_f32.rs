@@ -37,12 +37,12 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
                 data.push(f32::sin(i as f32 * step));
             }
 
-            log_info!(
-                att_sample_ro.logger(),
-                "shoot {:?} ! {:?}bytes",
-                number_of_point,
-                number_of_point * size_of::<f32>()
-            );
+            // log_info!(
+            //     att_sample_ro.logger(),
+            //     "shoot {:?} ! {:?}bytes",
+            //     number_of_point,
+            //     number_of_point * size_of::<f32>()
+            // );
 
             att_sample_ro.set(&data).await.unwrap();
 
