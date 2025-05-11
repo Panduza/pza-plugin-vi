@@ -1,6 +1,7 @@
 mod boolean;
 mod r#enum;
 mod json;
+mod si;
 mod string;
 mod vector_f32;
 mod waveform;
@@ -28,8 +29,18 @@ impl Actions for Device {
     ///
     ///
     async fn mount(&mut self, instance: Instance) -> Result<(), Error> {
+        let boolean_overload = if let Some(settings) = instance.settings().await {
+            settings
+                .get("boolean_overload")
+                .and_then(|v| v.as_u64().map(|n| n as usize))
+        } else {
+            None
+        };
+
+        si::mount(instance.clone()).await?;
+        r#enum::mount(instance.clone()).await?;
         string::mount(instance.clone()).await?;
-        boolean::mount(instance.clone()).await?;
+        boolean::mount(instance.clone(), boolean_overload).await?;
         waveform::mount(instance.clone()).await?;
         json::mount(instance.clone()).await?;
         vector_f32::mount(instance.clone()).await?;

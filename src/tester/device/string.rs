@@ -18,7 +18,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    att_string_ro.set("test".to_string()).await?;
+    att_string_ro.set("initial".to_string()).await?;
 
     //
     //
@@ -49,7 +49,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .with_info(r#"read write command"#)
         .start_as_string()
         .await?;
-    att_string_rw.set("test".to_string()).await?;
+    att_string_rw.set("initial".to_string()).await?;
 
     //
     //

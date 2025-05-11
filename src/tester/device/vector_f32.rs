@@ -27,7 +27,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handle = tokio::spawn(async move {
         let mut number_of_point = 500;
         loop {
             let step = 0.05;
@@ -37,12 +37,12 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
                 data.push(f32::sin(i as f32 * step));
             }
 
-            log_info!(
-                att_sample_ro.logger(),
-                "shoot {:?} ! {:?}bytes",
-                number_of_point,
-                number_of_point * size_of::<f32>()
-            );
+            // log_info!(
+            //     att_sample_ro.logger(),
+            //     "shoot {:?} ! {:?}bytes",
+            //     number_of_point,
+            //     number_of_point * size_of::<f32>()
+            // );
 
             att_sample_ro.set(&data).await.unwrap();
 
@@ -52,6 +52,9 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             number_of_point %= 10000;
         }
     });
+    instance
+        .monitor_task("tester/vector/simulation".to_string(), handle)
+        .await;
 
     log_debug_mount_end!(class.logger());
     Ok(())
