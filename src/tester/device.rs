@@ -1,4 +1,5 @@
 mod boolean;
+mod bytes;
 mod r#enum;
 mod json;
 mod si;
@@ -44,6 +45,7 @@ impl Actions for Device {
         waveform::mount(instance.clone()).await?;
         json::mount(instance.clone()).await?;
         vector_f32::mount(instance.clone()).await?;
+        bytes::mount(instance.clone()).await?;
         Ok(())
     }
     ///
