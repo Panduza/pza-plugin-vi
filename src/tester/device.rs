@@ -1,10 +1,11 @@
 mod boolean;
-mod r#enum;
+mod bytes;
+// mod r#enum;
 mod json;
 mod si;
 mod string;
-mod vector_f32;
-mod waveform;
+// mod vector_f32;
+// mod waveform;
 use async_trait::async_trait;
 use panduza_platform_core::{Actions, Error, Instance};
 use std::time::Duration;
