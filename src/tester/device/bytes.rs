@@ -1,5 +1,8 @@
 use bytes::Bytes;
-use panduza_platform_core::{log_info, Container, Error, Instance};
+use panduza_platform_core::log_debug_mount_end;
+use panduza_platform_core::log_debug_mount_start;
+use panduza_platform_core::log_info;
+use panduza_platform_core::{Container, Error, Instance};
 
 ///
 ///
@@ -7,6 +10,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     // Create interface
     let mut class = instance.create_class("bytes").finish().await;
+    log_debug_mount_start!(class.logger());
 
     //
     //
@@ -64,5 +68,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         }
     });
 
+    // Finalize the mounting process
+    log_debug_mount_end!(class.logger());
     Ok(())
 }

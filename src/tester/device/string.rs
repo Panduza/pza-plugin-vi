@@ -1,3 +1,5 @@
+use panduza_platform_core::log_debug_mount_end;
+use panduza_platform_core::log_debug_mount_start;
 use panduza_platform_core::{log_info, Container, Error, Instance};
 
 ///
@@ -6,6 +8,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     //
     // Create interface
     let mut class = instance.create_class("string").finish().await;
+    log_debug_mount_start!(class.logger());
 
     //
     //
@@ -63,5 +66,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         }
     });
 
+    // Finalize the mounting process
+    log_debug_mount_end!(class.logger());
     Ok(())
 }
