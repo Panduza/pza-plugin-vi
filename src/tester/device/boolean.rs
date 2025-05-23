@@ -66,6 +66,7 @@ This attribute is used to test boolean values in the system. It is a write-only 
             while let Some(command) = att_boolean_wo.pop().await {
                 log_info!(att_boolean_wo.logger(), "command received - {:?}", command);
                 att_boolean_ro.set(command).await.unwrap();
+                log_info!(att_boolean_ro.logger(), "command replay - {:?}", command);
             }
         }
     });
