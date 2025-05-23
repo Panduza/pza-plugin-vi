@@ -4,6 +4,9 @@ use panduza_platform_core::log_info;
 use panduza_platform_core::Container;
 use panduza_platform_core::Error;
 use panduza_platform_core::Instance;
+use panduza_platform_core::NumberBuffer;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 /// This module contains the implementation of the boolean attribute test.
 ///
@@ -37,6 +40,79 @@ This attribute is used to test boolean values in the system. It is a read-only a
     att_boolean_ro.set(false).await?;
 
     //
+    // Create a counter to track wo commands
+    let att_wo_counter = class
+        .create_attribute("wo_counter")
+        .with_ro()
+        .with_info(
+            r#"# WO Command Counter
+
+This attribute tracks the number of commands received by the wo (write-only) boolean attribute.
+
+## Purpose
+- To count how many commands are sent to the write-only attribute.
+- To provide metrics for testing purposes.
+
+## Example
+- Initial value: 0
+- Value increments each time a command is received by the wo attribute.
+"#,
+        )
+        .start_as_si("", 0.0, 1000000.0, 0) // Using integers, no decimals
+        .await?;
+    att_wo_counter.set(NumberBuffer::from(0.0)).await?;
+
+    // Create a shared command counter
+    let wo_command_counter = Arc::new(Mutex::new(0));
+
+    //
+    // Create a boolean attribute to reset the counter
+    let mut att_wo_counter_reset = class
+        .create_attribute("wo_counter_reset")
+        .with_wo()
+        .with_info(
+            r#"# WO Counter Reset
+
+This attribute resets the command counter for the wo (write-only) boolean attribute.
+
+## Purpose
+- To reset the counter to zero when needed.
+- To provide testing control over the counter state.
+
+## Example
+- Send any boolean value to this attribute to reset the counter to 0.
+- After reset, the wo_counter attribute will be set back to 0.
+"#,
+        )
+        .start_as_boolean()
+        .await?;
+
+    // Create a task to handle counter reset commands
+    let counter_reset_clone = wo_command_counter.clone();
+    let att_wo_counter_reset_clone = att_wo_counter.clone();
+    let handler_att_wo_reset = tokio::spawn(async move {
+        loop {
+            att_wo_counter_reset.wait_for_commands().await;
+            while let Some(_) = att_wo_counter_reset.pop().await {
+                // Reset the counter
+                let mut counter = counter_reset_clone.lock().await;
+                *counter = 0;
+                att_wo_counter_reset_clone
+                    .set(NumberBuffer::from(0.0))
+                    .await
+                    .unwrap();
+                log_info!(att_wo_counter_reset.logger(), "Counter reset to 0");
+            }
+        }
+    });
+    instance
+        .monitor_task(
+            "tester/boolean/wo_counter_reset".to_string(),
+            handler_att_wo_reset,
+        )
+        .await;
+
+    //
     // Create a write-only boolean attribute
     let mut att_boolean_wo = class
         .create_attribute("wo")
@@ -60,11 +136,22 @@ This attribute is used to test boolean values in the system. It is a write-only 
 
     //
     // Spawn a task to handle write-only attribute commands
+    let counter_clone = wo_command_counter.clone();
+    let att_wo_counter_clone = att_wo_counter.clone();
     let handler_att_wo = tokio::spawn(async move {
         loop {
             att_boolean_wo.wait_for_commands().await;
             while let Some(command) = att_boolean_wo.pop().await {
+                // Increment the counter
+                let mut counter = counter_clone.lock().await;
+                *counter += 1;
+                att_wo_counter_clone
+                    .set(NumberBuffer::from(*counter as f64))
+                    .await
+                    .unwrap();
+
                 log_info!(att_boolean_wo.logger(), "command received - {:?}", command);
+                log_info!(att_boolean_wo.logger(), "command counter - {:?}", *counter);
                 att_boolean_ro.set(command).await.unwrap();
                 log_info!(att_boolean_ro.logger(), "command replay - {:?}", command);
             }
