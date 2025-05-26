@@ -52,7 +52,6 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     tokio::spawn(async move {
         loop {
-            att_si_rw.wait_for_commands().await;
             if let Ok(command) = att_si_rw.wait_for_commands().await {
                 log_info!(att_si_rw.logger(), "command received - {:?}", command);
                 att_si_rw.set(command).await.unwrap();
