@@ -42,9 +42,9 @@ impl Actions for Device {
         r#enum::mount(instance.clone()).await?;
         string::mount(instance.clone()).await?;
         boolean::mount(instance.clone(), boolean_overload).await?;
-        waveform::mount(instance.clone()).await?;
+        // waveform::mount(instance.clone()).await?;
         json::mount(instance.clone()).await?;
-        vector_f32::mount(instance.clone()).await?;
+        // vector_f32::mount(instance.clone()).await?;
         bytes::mount(instance.clone()).await?;
         Ok(())
     }

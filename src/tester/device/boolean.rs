@@ -89,11 +89,11 @@ This attribute resets the command counter for the wo (write-only) boolean attrib
 
     // Create a task to handle counter reset commands
     let counter_reset_clone = wo_command_counter.clone();
+    let att_wo_counter = Arc::new(att_wo_counter);
     let att_wo_counter_reset_clone = att_wo_counter.clone();
     let handler_att_wo_reset = tokio::spawn(async move {
         loop {
-            att_wo_counter_reset.wait_for_commands().await;
-            while let Some(_) = att_wo_counter_reset.pop().await {
+            if let Ok(_) = att_wo_counter_reset.wait_for_commands().await {
                 // Reset the counter
                 let mut counter = counter_reset_clone.lock().await;
                 *counter = 0;
@@ -140,9 +140,7 @@ This attribute is used to test boolean values in the system. It is a write-only 
     let att_wo_counter_clone = att_wo_counter.clone();
     let handler_att_wo = tokio::spawn(async move {
         loop {
-            att_boolean_wo.wait_for_commands().await;
-            while let Some(command) = att_boolean_wo.pop().await {
-                // Increment the counter
+            if let Ok(payload) = att_boolean_wo.wait_for_commands().await {
                 let mut counter = counter_clone.lock().await;
                 *counter += 1;
                 att_wo_counter_clone
@@ -150,10 +148,10 @@ This attribute is used to test boolean values in the system. It is a write-only 
                     .await
                     .unwrap();
 
-                log_info!(att_boolean_wo.logger(), "command received - {:?}", command);
-                log_info!(att_boolean_wo.logger(), "command counter - {:?}", *counter);
-                att_boolean_ro.set(command).await.unwrap();
-                log_info!(att_boolean_ro.logger(), "command replay - {:?}", command);
+                // log_info!(att_boolean_wo.logger(), "command received - {:?}", payload);
+                // log_info!(att_boolean_wo.logger(), "command counter - {:?}", *counter);
+                att_boolean_ro.set(payload).await.unwrap();
+                // log_info!(att_boolean_ro.logger(), "command replay - {:?}", payload);
             }
         }
     });
@@ -195,8 +193,7 @@ This attribute is used to test boolean values in the system. It is a read-write 
     // Spawn a task to handle read-write attribute commands
     let handler_att_rw = tokio::spawn(async move {
         loop {
-            att_boolean_rw.wait_for_commands().await;
-            while let Some(command) = att_boolean_rw.pop().await {
+            if let Ok(command) = att_boolean_rw.wait_for_commands().await {
                 log_info!(att_boolean_rw.logger(), "command received - {:?}", command);
                 att_boolean_rw.set(command).await.unwrap();
             }
@@ -237,8 +234,7 @@ This attribute is used to simulate alert scenarios in the system. It is a write-
     // Spawn a task to handle write-only attribute commands for alert simulation
     let handler_att_alert = tokio::spawn(async move {
         loop {
-            att_boolean_alert.wait_for_commands().await;
-            while let Some(_) = att_boolean_alert.pop().await {
+            if let Ok(_) = att_boolean_alert.wait_for_commands().await {
                 log_info!(att_boolean_alert.logger(), "Alert simulation triggered");
                 att_boolean_alert
                     .trigger_alert("Simulated alert triggered for testing purposes")
@@ -281,8 +277,7 @@ This attribute is used to simulate error scenarios in the system. It is a write-
     // Spawn a task to handle write-only attribute commands for error simulation
     let handler_att_error = tokio::spawn(async move {
         loop {
-            att_boolean_error.wait_for_commands().await;
-            while let Some(_) = att_boolean_error.pop().await {
+            if let Ok(_) = att_boolean_error.wait_for_commands().await {
                 log_info!(att_boolean_error.logger(), "Error simulation triggered");
                 panic!("Simulated error triggered for testing purposes");
             }
@@ -305,8 +300,7 @@ This attribute is used to simulate error scenarios in the system. It is a write-
             att_boolean_overload.set(false).await?;
             let handler_att_overload = tokio::spawn(async move {
                 loop {
-                    att_boolean_overload.wait_for_commands().await;
-                    while let Some(command) = att_boolean_overload.pop().await {
+                    if let Ok(command) = att_boolean_overload.wait_for_commands().await {
                         log_info!(
                             att_boolean_overload.logger(),
                             "command received - {:?}",

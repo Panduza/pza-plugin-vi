@@ -33,9 +33,8 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     tokio::spawn(async move {
         loop {
-            att_si_wo.wait_for_commands().await;
-            while let Some(command) = att_si_wo.pop().await {
-                log_info!(att_si_wo.logger(), "command received - {:?}", command);
+            if let Ok(command) = att_si_wo.wait_for_commands().await {
+                // log_info!(att_si_wo.logger(), "command received - {:?}", command);
                 att_si_ro.set(command).await.unwrap();
             }
         }
@@ -54,7 +53,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
     tokio::spawn(async move {
         loop {
             att_si_rw.wait_for_commands().await;
-            while let Some(command) = att_si_rw.pop().await {
+            if let Ok(command) = att_si_rw.wait_for_commands().await {
                 log_info!(att_si_rw.logger(), "command received - {:?}", command);
                 att_si_rw.set(command).await.unwrap();
             }
