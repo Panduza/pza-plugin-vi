@@ -34,7 +34,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_string_wo = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_string_wo.wait_for_commands().await {
                 // log_info!(att_string_wo.logger(), "command recieved - {:?}", command);
@@ -42,6 +42,10 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+
+    instance
+        .monitor_task("tester/string/wo".to_string(), handler_att_string_wo)
+        .await;
 
     //
     //
@@ -55,7 +59,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_string_rw = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_string_rw.wait_for_commands().await {
                 log_info!(att_string_rw.logger(), "command recieved - {:?}", command);
@@ -63,6 +67,10 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+
+    instance
+        .monitor_task("tester/string/rw".to_string(), handler_att_string_rw)
+        .await;
 
     // Finalize the mounting process
     log_debug_mount_end!(class.logger());

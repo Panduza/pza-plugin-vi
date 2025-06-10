@@ -36,7 +36,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_bytes_wo = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_bytes_wo.wait_for_commands().await {
                 // log_info!(att_bytes_wo.logger(), "command recieved - {:?}", command);
@@ -44,6 +44,9 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+    instance
+        .monitor_task("tester/bytes/wo".to_string(), handler_att_bytes_wo)
+        .await;
 
     //
     //
@@ -57,7 +60,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_bytes_rw = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_bytes_rw.wait_for_commands().await {
                 log_info!(att_bytes_rw.logger(), "command recieved - {:?}", command);
@@ -65,6 +68,9 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+    instance
+        .monitor_task("tester/bytes/rw".to_string(), handler_att_bytes_rw)
+        .await;
 
     // Finalize the mounting process
     log_debug_mount_end!(class.logger());

@@ -31,7 +31,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .start_as_si("Ω", -20.0, 100000.0, 2)
         .await?;
 
-    tokio::spawn(async move {
+    let handler_att_si_wo = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_si_wo.wait_for_commands().await {
                 // log_info!(att_si_wo.logger(), "command received - {:?}", command);
@@ -39,6 +39,10 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+
+    instance
+        .monitor_task("tester/si/wo".to_string(), handler_att_si_wo)
+        .await;
 
     //
     //
@@ -50,7 +54,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
         .await?;
     att_si_rw.set(NumberBuffer::from(0.0)).await?;
 
-    tokio::spawn(async move {
+    let handler_att_si_rw = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_si_rw.wait_for_commands().await {
                 log_info!(att_si_rw.logger(), "command received - {:?}", command);
@@ -58,6 +62,10 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+
+    instance
+        .monitor_task("tester/si/rw".to_string(), handler_att_si_rw)
+        .await;
 
     // Finalize the mounting process
     log_debug_mount_end!(class.logger());

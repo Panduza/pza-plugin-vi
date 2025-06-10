@@ -29,7 +29,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_number_wo = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_number_wo.wait_for_commands().await {
                 // log_info!(att_number_wo.logger(), "command recieved - {:?}", command);
@@ -37,6 +37,10 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+
+    instance
+        .monitor_task("tester/number/wo".to_string(), handler_att_number_wo)
+        .await;
 
     //
     //
@@ -49,7 +53,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_number_rw = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_number_rw.wait_for_commands().await {
                 log_info!(att_number_rw.logger(), "command recieved - {:?}", command);
@@ -57,6 +61,10 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+
+    instance
+        .monitor_task("tester/number/rw".to_string(), handler_att_number_rw)
+        .await;
 
     Ok(())
 }

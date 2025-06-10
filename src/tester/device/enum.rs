@@ -47,7 +47,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_enum_wo = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_enum_wo.wait_for_commands().await {
                 // log_info!(att_enum_wo.logger(), "command recieved - {:?}", command);
@@ -55,6 +55,10 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+
+    instance
+        .monitor_task("tester/enum/wo".to_string(), handler_att_enum_wo)
+        .await;
 
     //
     //
@@ -68,7 +72,7 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_enum_rw = tokio::spawn(async move {
         loop {
             if let Ok(command) = att_enum_rw.wait_for_commands().await {
                 log_info!(att_enum_rw.logger(), "command recieved - {:?}", command);
@@ -76,6 +80,10 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
             }
         }
     });
+
+    instance
+        .monitor_task("tester/enum/rw".to_string(), handler_att_enum_rw)
+        .await;
 
     // Finalize the mounting process
     log_debug_mount_end!(class.logger());
