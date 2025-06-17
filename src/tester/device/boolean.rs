@@ -1,3 +1,4 @@
+use futures::FutureExt;
 use panduza_platform_core::log_debug_mount_end;
 use panduza_platform_core::log_debug_mount_start;
 use panduza_platform_core::log_info;
@@ -87,30 +88,29 @@ This attribute resets the command counter for the wo (write-only) boolean attrib
         .start_as_boolean()
         .await?;
 
-    // Create a task to handle counter reset commands
-    let counter_reset_clone = wo_command_counter.clone();
-    let att_wo_counter = Arc::new(att_wo_counter);
-    let att_wo_counter_reset_clone = att_wo_counter.clone();
-    let handler_att_wo_reset = tokio::spawn(async move {
-        loop {
-            if let Ok(_) = att_wo_counter_reset.wait_for_commands().await {
-                // Reset the counter
-                let mut counter = counter_reset_clone.lock().await;
-                *counter = 0;
-                att_wo_counter_reset_clone
-                    .set(NumberBuffer::from(0.0))
-                    .await
-                    .unwrap();
-                log_info!(att_wo_counter_reset.logger(), "Counter reset to 0");
-            }
-        }
-    });
-    instance
-        .monitor_task(
-            "tester/boolean/wo_counter_reset".to_string(),
-            handler_att_wo_reset,
-        )
-        .await;
+    // Ajout du callback pour reset le compteur
+    // {
+    //     let counter_reset_clone = wo_command_counter.clone();
+    //     let att_wo_counter = Arc::new(att_wo_counter);
+    //     let att_wo_counter_reset = att_wo_counter_reset.clone();
+    //     att_wo_counter_reset
+    //         .add_callback(
+    //             move |_payload| {
+    //                 let counter_reset_clone = counter_reset_clone.clone();
+    //                 let att_wo_counter = att_wo_counter.clone();
+    //                 let att_wo_counter_reset = att_wo_counter_reset.clone();
+    //                 async move {
+    //                     let mut counter = counter_reset_clone.lock().await;
+    //                     *counter = 0;
+    //                     att_wo_counter.set(NumberBuffer::from(0.0)).await.unwrap();
+    //                     log_info!(att_wo_counter_reset.logger(), "Counter reset to 0");
+    //                 }
+    //                 .boxed()
+    //             },
+    //             None::<fn(&_) -> bool>,
+    //         )
+    //         .await;
+    // }
 
     //
     // Create a write-only boolean attribute
@@ -134,30 +134,32 @@ This attribute is used to test boolean values in the system. It is a write-only 
         .start_as_boolean()
         .await?;
 
-    //
-    // Spawn a task to handle write-only attribute commands
-    let counter_clone = wo_command_counter.clone();
-    let att_wo_counter_clone = att_wo_counter.clone();
-    let handler_att_wo = tokio::spawn(async move {
-        loop {
-            if let Ok(payload) = att_boolean_wo.wait_for_commands().await {
-                let mut counter = counter_clone.lock().await;
-                *counter += 1;
-                att_wo_counter_clone
-                    .set(NumberBuffer::from(*counter as f64))
-                    .await
-                    .unwrap();
-
-                // log_info!(att_boolean_wo.logger(), "command received - {:?}", payload);
-                // log_info!(att_boolean_wo.logger(), "command counter - {:?}", *counter);
-                att_boolean_ro.set(payload).await.unwrap();
-                // log_info!(att_boolean_ro.logger(), "command replay - {:?}", payload);
-            }
-        }
-    });
-    instance
-        .monitor_task("tester/boolean/wo".to_string(), handler_att_wo)
-        .await;
+    // Ajout du callback pour incrémenter le compteur et mettre à jour la valeur RO
+    // {
+    //     let counter_clone = wo_command_counter.clone();
+    //     let att_wo_counter = Arc::new(att_wo_counter);
+    //     let att_boolean_ro = att_boolean_ro.clone();
+    //     att_boolean_wo
+    //         .add_callback(
+    //             move |payload| {
+    //                 let counter_clone = counter_clone.clone();
+    //                 let att_wo_counter = att_wo_counter.clone();
+    //                 let att_boolean_ro = att_boolean_ro.clone();
+    //                 async move {
+    //                     let mut counter = counter_clone.lock().await;
+    //                     *counter += 1;
+    //                     att_wo_counter
+    //                         .set(NumberBuffer::from(*counter as f64))
+    //                         .await
+    //                         .unwrap();
+    //                     att_boolean_ro.set(payload).await.unwrap();
+    //                 }
+    //                 .boxed()
+    //             },
+    //             None::<fn(&_) -> bool>,
+    //         )
+    //         .await;
+    // }
 
     //
     // Create a read-write boolean attribute
@@ -189,22 +191,26 @@ This attribute is used to test boolean values in the system. It is a read-write 
         .await?;
     att_boolean_rw.set(false).await?;
 
-    //
-    // Spawn a task to handle read-write attribute commands
-    let handler_att_rw = tokio::spawn(async move {
-        loop {
-            if let Ok(command) = att_boolean_rw.wait_for_commands().await {
-                log_info!(att_boolean_rw.logger(), "command received - {:?}", command);
-                att_boolean_rw.set(command).await.unwrap();
-            }
-        }
-    });
-    instance
-        .monitor_task("tester/boolean/rw".to_string(), handler_att_rw)
-        .await;
+    // Ajout du callback pour la gestion RW
+    {
+        let att_boolean_rw2 = att_boolean_rw.clone();
+        att_boolean_rw
+            .add_callback(
+                move |command| {
+                    let att_boolean_rw3 = att_boolean_rw2.clone();
+                    async move {
+                        log_info!(att_boolean_rw3.logger(), "command received - {:?}", command);
+                        att_boolean_rw3.set(command).await.unwrap();
+                    }
+                    .boxed()
+                },
+                None::<fn(&_) -> bool>,
+            )
+            .await;
+    }
 
     //
-    // Create a write-only boolean attribute for alert simulation
+    // Create a write-only boolean attribute pour alert
     let mut att_boolean_alert = class
         .create_attribute("alert")
         .with_wo()
@@ -230,24 +236,28 @@ This attribute is used to simulate alert scenarios in the system. It is a write-
         .start_as_boolean()
         .await?;
 
-    //
-    // Spawn a task to handle write-only attribute commands for alert simulation
-    let handler_att_alert = tokio::spawn(async move {
-        loop {
-            if let Ok(_) = att_boolean_alert.wait_for_commands().await {
-                log_info!(att_boolean_alert.logger(), "Alert simulation triggered");
-                att_boolean_alert
-                    .trigger_alert("Simulated alert triggered for testing purposes")
-                    .await;
-            }
-        }
-    });
-    instance
-        .monitor_task("tester/boolean/alert".to_string(), handler_att_alert)
-        .await;
+    // Ajout du callback pour la simulation d'alerte
+    // {
+    //     let att_boolean_alert = att_boolean_alert.clone();
+    //     att_boolean_alert
+    //         .add_callback(
+    //             move |_payload| {
+    //                 let att_boolean_alert = att_boolean_alert.clone();
+    //                 async move {
+    //                     log_info!(att_boolean_alert.logger(), "Alert simulation triggered");
+    //                     att_boolean_alert
+    //                         .trigger_alert("Simulated alert triggered for testing purposes")
+    //                         .await;
+    //                 }
+    //                 .boxed()
+    //             },
+    //             None::<fn(&_) -> bool>,
+    //         )
+    //         .await;
+    // }
 
     //
-    // Create a write-only boolean attribute for error simulation
+    // Create a write-only boolean attribute pour error
     let mut att_boolean_error = class
         .create_attribute("error")
         .with_wo()
@@ -273,19 +283,23 @@ This attribute is used to simulate error scenarios in the system. It is a write-
         .start_as_boolean()
         .await?;
 
-    //
-    // Spawn a task to handle write-only attribute commands for error simulation
-    let handler_att_error = tokio::spawn(async move {
-        loop {
-            if let Ok(_) = att_boolean_error.wait_for_commands().await {
-                log_info!(att_boolean_error.logger(), "Error simulation triggered");
-                panic!("Simulated error triggered for testing purposes");
-            }
-        }
-    });
-    instance
-        .monitor_task("tester/boolean/error".to_string(), handler_att_error)
-        .await;
+    // Ajout du callback pour la simulation d'erreur
+    // {
+    //     let att_boolean_error = att_boolean_error.clone();
+    //     att_boolean_error
+    //         .add_callback(
+    //             move |_payload| {
+    //                 let att_boolean_error = att_boolean_error.clone();
+    //                 async move {
+    //                     log_info!(att_boolean_error.logger(), "Error simulation triggered");
+    //                     panic!("Simulated error triggered for testing purposes");
+    //                 }
+    //                 .boxed()
+    //             },
+    //             None::<fn(&_) -> bool>,
+    //         )
+    //         .await;
+    // }
 
     //
     // if overload is set, create as may rw attributes as overload number
@@ -298,24 +312,27 @@ This attribute is used to simulate error scenarios in the system. It is a write-
                 .start_as_boolean()
                 .await?;
             att_boolean_overload.set(false).await?;
-            let handler_att_overload = tokio::spawn(async move {
-                loop {
-                    if let Ok(command) = att_boolean_overload.wait_for_commands().await {
-                        log_info!(
-                            att_boolean_overload.logger(),
-                            "command received - {:?}",
-                            command
-                        );
-                        att_boolean_overload.set(command).await.unwrap();
-                    }
-                }
-            });
-            instance
-                .monitor_task(
-                    format!("tester/boolean/overload_rw_{}", i),
-                    handler_att_overload,
-                )
-                .await;
+            // Ajout du callback pour chaque overload
+            {
+                let att_boolean_overload = att_boolean_overload.clone();
+                // att_boolean_overload
+                //     .add_callback(
+                //         move |command| {
+                //             let att_boolean_overload = att_boolean_overload.clone();
+                //             async move {
+                //                 log_info!(
+                //                     att_boolean_overload.logger(),
+                //                     "command received - {:?}",
+                //                     command
+                //                 );
+                //                 att_boolean_overload.set(command).await.unwrap();
+                //             }
+                //             .boxed()
+                //         },
+                //         None::<fn(&_) -> bool>,
+                //     )
+                //     .await;
+            }
         }
     }
 
