@@ -192,22 +192,23 @@ This attribute is used to test boolean values in the system. It is a read-write 
     att_boolean_rw.set(false).await?;
 
     // Ajout du callback pour la gestion RW
-    {
-        let att_boolean_rw2 = att_boolean_rw.clone();
-        att_boolean_rw
-            .add_callback(
+
+    att_boolean_rw
+        .add_callback(
+            {
+                let att_boolean_rw = att_boolean_rw.clone();
                 move |command| {
-                    let att_boolean_rw3 = att_boolean_rw2.clone();
+                    let att_boolean_rw = att_boolean_rw.clone();
                     async move {
-                        log_info!(att_boolean_rw3.logger(), "command received - {:?}", command);
-                        att_boolean_rw3.set(command).await.unwrap();
+                        log_info!(att_boolean_rw.logger(), "command received - {:?}", command);
+                        att_boolean_rw.set(command).await.unwrap();
                     }
                     .boxed()
-                },
-                None::<fn(&_) -> bool>,
-            )
-            .await;
-    }
+                }
+            },
+            None::<fn(&_) -> bool>,
+        )
+        .await;
 
     //
     // Create a write-only boolean attribute pour alert
