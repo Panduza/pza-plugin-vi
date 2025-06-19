@@ -18,145 +18,8 @@ pub async fn mount(mut instance: Instance, overload: Option<usize>) -> Result<()
     let mut class = instance.create_class("boolean").finish().await;
     log_debug_mount_start!(class.logger());
 
-    //
-    // Create a read-only boolean attribute
-    let att_boolean_ro = class
-        .create_attribute("ro")
-        .with_ro()
-        .with_info(r#"# Boolean Attribute Test
-
-This attribute is used to test boolean values in the system. It is a read-only attribute, meaning its value can only be read and not modified directly.
-
-## Purpose
-
-- To verify the behavior of boolean attributes.
-- To ensure the system handles `true` and `false` values correctly.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: The value changes based on external triggers or commands.
-        "#)
-        .start_as_boolean()
-        .await?;
-    att_boolean_ro.set(false).await?;
-
-    //
-    // Create a counter to track wo commands
-    let att_wo_counter = class
-        .create_attribute("wo_counter")
-        .with_ro()
-        .with_info(
-            r#"# WO Command Counter
-
-This attribute tracks the number of commands received by the wo (write-only) boolean attribute.
-
-## Purpose
-- To count how many commands are sent to the write-only attribute.
-- To provide metrics for testing purposes.
-
-## Example
-- Initial value: 0
-- Value increments each time a command is received by the wo attribute.
-"#,
-        )
-        .start_as_si("", 0.0, 1000000.0, 0) // Using integers, no decimals
-        .await?;
-    att_wo_counter.set(NumberBuffer::from(0.0)).await?;
-
-    // Create a shared command counter
-    let wo_command_counter = Arc::new(Mutex::new(0));
-
-    //
-    // Create a boolean attribute to reset the counter
-    let mut att_wo_counter_reset = class
-        .create_attribute("wo_counter_reset")
-        .with_wo()
-        .with_info(
-            r#"# WO Counter Reset
-
-This attribute resets the command counter for the wo (write-only) boolean attribute.
-
-## Purpose
-- To reset the counter to zero when needed.
-- To provide testing control over the counter state.
-
-## Example
-- Send any boolean value to this attribute to reset the counter to 0.
-- After reset, the wo_counter attribute will be set back to 0.
-"#,
-        )
-        .start_as_boolean()
-        .await?;
-
-    // Ajout du callback pour reset le compteur
-    att_wo_counter_reset
-        .add_callback({
-            let counter_reset_clone = wo_command_counter.clone();
-            let att_wo_counter = att_wo_counter.clone();
-            let att_wo_counter_reset = att_wo_counter_reset.clone();
-
-            move |_payload| {
-                let counter_reset_clone = counter_reset_clone.clone();
-                let att_wo_counter = att_wo_counter.clone();
-                let att_wo_counter_reset = att_wo_counter_reset.clone();
-                async move {
-                    let mut counter = counter_reset_clone.lock().await;
-                    *counter = 0;
-                    att_wo_counter.set(NumberBuffer::from(0.0)).await.unwrap();
-                    log_info!(att_wo_counter_reset.logger(), "Counter reset to 0");
-                }
-                .boxed()
-            }
-        })
-        .await;
-
-    //
-    // Create a write-only boolean attribute
-    let mut att_boolean_wo = class
-        .create_attribute("wo")
-        .with_wo()
-        .with_info(r#"# Boolean Attribute Test
-
-This attribute is used to test boolean values in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
-
-## Purpose
-
-- To verify the behavior of boolean attributes.
-- To ensure the system handles `true` and `false` values correctly.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: The value changes based on external triggers or commands.
-        "#)
-        .start_as_boolean()
-        .await?;
-
-    // Ajout du callback pour incrémenter le compteur et mettre à jour la valeur RO
-
-    att_boolean_wo
-        .add_callback({
-            let counter_clone = wo_command_counter.clone();
-            let att_wo_counter = att_wo_counter.clone();
-            let att_boolean_ro = att_boolean_ro.clone();
-            move |command| {
-                let counter_clone = counter_clone.clone();
-                let att_wo_counter = att_wo_counter.clone();
-                let att_boolean_ro = att_boolean_ro.clone();
-                async move {
-                    let mut counter = counter_clone.lock().await;
-                    *counter += 1;
-                    att_wo_counter
-                        .set(NumberBuffer::from(*counter as f64))
-                        .await
-                        .unwrap();
-                    att_boolean_ro.set(command).await.unwrap();
-                }
-                .boxed()
-            }
-        })
-        .await;
+    // Création des attributs de test booléens (ro, wo_counter, wo_counter_reset, wo)
+    create_boolean_test_attributes(&mut class).await?;
 
     //
     // Create a read-write boolean attribute
@@ -174,7 +37,7 @@ This attribute is used to test boolean values in the system. It is a write-only 
     // if overload is set, create as may rw attributes as overload number
     if let Some(overload) = overload {
         for i in 0..overload {
-            let mut att_boolean_overload = class
+            let att_boolean_overload = class
                 .create_attribute(format!("overload_rw_{}", i))
                 .with_rw()
                 .with_info(&format!("Overload attribute number {}", i))
@@ -183,7 +46,7 @@ This attribute is used to test boolean values in the system. It is a write-only 
             att_boolean_overload.set(false).await?;
             // Ajout du callback pour chaque overload
             {
-                let att_boolean_overload = att_boolean_overload.clone();
+                // let att_boolean_overload = att_boolean_overload.clone();
                 // att_boolean_overload
                 //     .add_callback(
                 //         move |command| {
@@ -382,4 +245,148 @@ This attribute is used to simulate error scenarios in the system. It is a write-
         })
         .await;
     Ok(att_boolean_error)
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+/// Crée les attributs de test booléens (ro, wo_counter, wo_counter_reset, wo) avec leurs callbacks
+async fn create_boolean_test_attributes(
+    class: &mut impl panduza_platform_core::Container,
+) -> Result<(), Error> {
+    // Création de l'attribut RO
+    let att_boolean_ro = class
+        .create_attribute("ro")
+        .with_ro()
+        .with_info(r#"# Boolean Attribute Test
+
+This attribute is used to test boolean values in the system. It is a read-only attribute, meaning its value can only be read and not modified directly.
+
+## Purpose
+
+- To verify the behavior of boolean attributes.
+- To ensure the system handles `true` and `false` values correctly.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: The value changes based on external triggers or commands.
+        "#)
+        .start_as_boolean()
+        .await?;
+    att_boolean_ro.set(false).await?;
+
+    // Création du compteur WO
+    let att_wo_counter = class
+        .create_attribute("wo_counter")
+        .with_ro()
+        .with_info(
+            r#"# WO Command Counter
+
+This attribute tracks the number of commands received by the wo (write-only) boolean attribute.
+
+## Purpose
+- To count how many commands are sent to the write-only attribute.
+- To provide metrics for testing purposes.
+
+## Example
+- Initial value: 0
+- Value increments each time a command is received by the wo attribute.
+"#,
+        )
+        .start_as_si("", 0.0, 1000000.0, 0)
+        .await?;
+    att_wo_counter.set(NumberBuffer::from(0.0)).await?;
+
+    // Compteur partagé
+    let wo_command_counter = Arc::new(Mutex::new(0));
+
+    // Attribut pour reset le compteur
+    let att_wo_counter_reset = class
+        .create_attribute("wo_counter_reset")
+        .with_wo()
+        .with_info(
+            r#"# WO Counter Reset
+
+This attribute resets the command counter for the wo (write-only) boolean attribute.
+
+## Purpose
+- To reset the counter to zero when needed.
+- To provide testing control over the counter state.
+
+## Example
+- Send any boolean value to this attribute to reset the counter to 0.
+- After reset, the wo_counter attribute will be set back to 0.
+"#,
+        )
+        .start_as_boolean()
+        .await?;
+
+    att_wo_counter_reset
+        .add_callback({
+            let counter_reset_clone = wo_command_counter.clone();
+            let att_wo_counter = att_wo_counter.clone();
+            let att_wo_counter_reset = att_wo_counter_reset.clone();
+
+            move |_payload| {
+                let counter_reset_clone = counter_reset_clone.clone();
+                let att_wo_counter = att_wo_counter.clone();
+                let att_wo_counter_reset = att_wo_counter_reset.clone();
+                async move {
+                    let mut counter = counter_reset_clone.lock().await;
+                    *counter = 0;
+                    att_wo_counter.set(NumberBuffer::from(0.0)).await.unwrap();
+                    log_info!(att_wo_counter_reset.logger(), "Counter reset to 0");
+                }
+                .boxed()
+            }
+        })
+        .await;
+
+    // Attribut WO
+    let att_boolean_wo = class
+        .create_attribute("wo")
+        .with_wo()
+        .with_info(r#"# Boolean Attribute Test
+
+This attribute is used to test boolean values in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
+
+## Purpose
+
+- To verify the behavior of boolean attributes.
+- To ensure the system handles `true` and `false` values correctly.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: The value changes based on external triggers or commands.
+        "#)
+        .start_as_boolean()
+        .await?;
+
+    att_boolean_wo
+        .add_callback({
+            let counter_clone = wo_command_counter.clone();
+            let att_wo_counter = att_wo_counter.clone();
+            let att_boolean_ro = att_boolean_ro.clone();
+            move |command| {
+                let counter_clone = counter_clone.clone();
+                let att_wo_counter = att_wo_counter.clone();
+                let att_boolean_ro = att_boolean_ro.clone();
+                async move {
+                    let mut counter = counter_clone.lock().await;
+                    *counter += 1;
+                    att_wo_counter
+                        .set(NumberBuffer::from(*counter as f64))
+                        .await
+                        .unwrap();
+                    att_boolean_ro.set(command).await.unwrap();
+                }
+                .boxed()
+            }
+        })
+        .await;
+
+    Ok(())
 }
