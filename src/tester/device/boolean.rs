@@ -168,50 +168,7 @@ This attribute is used to test boolean values in the system. It is a write-only 
 
     //
     // Create a write-only boolean attribute pour alert
-    let mut att_boolean_alert = class
-        .create_attribute("alert")
-        .with_wo()
-        .with_info(r#"# Alert Simulation Attribute
-
-This attribute is used to simulate alert scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
-
-## Purpose
-
-- To test the system's behavior when alerts are triggered.
-- To ensure proper handling of alert conditions.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: Writing to this attribute triggers an alert for testing purposes.
-
-### Additional Notes
-
-- This attribute is intended for testing and debugging only.
-- Use with caution as it will intentionally trigger an alert.
-        "#)
-        .start_as_boolean()
-        .await?;
-
-    // Ajout du callback pour la simulation d'alerte
-    // {
-    //     let att_boolean_alert = att_boolean_alert.clone();
-    //     att_boolean_alert
-    //         .add_callback(
-    //             move |_payload| {
-    //                 let att_boolean_alert = att_boolean_alert.clone();
-    //                 async move {
-    //                     log_info!(att_boolean_alert.logger(), "Alert simulation triggered");
-    //                     att_boolean_alert
-    //                         .trigger_alert("Simulated alert triggered for testing purposes")
-    //                         .await;
-    //                 }
-    //                 .boxed()
-    //             },
-    //             None::<fn(&_) -> bool>,
-    //         )
-    //         .await;
-    // }
+    create_alert_boolean_attribute(&mut class).await?;
 
     //
     // Create a write-only boolean attribute pour error
@@ -298,11 +255,17 @@ This attribute is used to simulate error scenarios in the system. It is a write-
     Ok(())
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 /// Initialise et configure l'attribut booléen RW avec son callback
 ///
 async fn create_rw_boolean_attribute(
     class: &mut impl panduza_platform_core::Container,
 ) -> Result<BooleanAttributeServer, Error> {
+    //
+    // Create the read-write boolean attribute
     let att_boolean_rw = class
         .create_attribute("rw")
         .with_rw()
@@ -329,8 +292,13 @@ This attribute is used to test boolean values in the system. It is a read-write 
         )
         .start_as_boolean()
         .await?;
+
+    //
+    // Set initial value
     att_boolean_rw.set(false).await?;
 
+    //
+    // Add a callback to handle commands for the read-write boolean attribute
     att_boolean_rw
         .add_callback({
             let att_boolean_rw = att_boolean_rw.clone();
@@ -348,5 +316,66 @@ This attribute is used to test boolean values in the system. It is a read-write 
             }
         })
         .await;
+
+    //
+    // Return the read-write boolean attribute server
     Ok(att_boolean_rw)
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+/// Initialise et configure l'attribut booléen WO pour la simulation d'alerte avec son callback
+async fn create_alert_boolean_attribute(
+    class: &mut impl panduza_platform_core::Container,
+) -> Result<BooleanAttributeServer, Error> {
+    //
+    // Create the write-only boolean attribute for alert simulation
+    let att_boolean_alert = class
+        .create_attribute("alert")
+        .with_wo()
+        .with_info(r#"# Alert Simulation Attribute
+
+This attribute is used to simulate alert scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
+
+## Purpose
+
+- To test the system's behavior when alerts are triggered.
+- To ensure proper handling of alert conditions.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: Writing to this attribute triggers an alert for testing purposes.
+
+### Additional Notes
+
+- This attribute is intended for testing and debugging only.
+- Use with caution as it will intentionally trigger an alert.
+        "#)
+        .start_as_boolean()
+        .await?;
+
+    //
+    // Add a callback to handle commands for the alert simulation attribute
+    att_boolean_alert
+        .add_callback({
+            let att_boolean_alert = att_boolean_alert.clone();
+            move |_command| {
+                let att_boolean_alert = att_boolean_alert.clone();
+                async move {
+                    log_info!(att_boolean_alert.logger(), "Alert simulation triggered");
+                    att_boolean_alert
+                        .trigger_alert("Simulated alert triggered for testing purposes")
+                        .await;
+                }
+                .boxed()
+            }
+        })
+        .await;
+
+    //
+    // Return the write-only boolean attribute for alert simulation
+    Ok(att_boolean_alert)
 }
