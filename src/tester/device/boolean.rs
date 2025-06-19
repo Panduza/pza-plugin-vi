@@ -90,28 +90,26 @@ This attribute resets the command counter for the wo (write-only) boolean attrib
         .await?;
 
     // Ajout du callback pour reset le compteur
-    // {
-    //     let counter_reset_clone = wo_command_counter.clone();
-    //     let att_wo_counter = Arc::new(att_wo_counter);
-    //     let att_wo_counter_reset = att_wo_counter_reset.clone();
-    //     att_wo_counter_reset
-    //         .add_callback(
-    //             move |_payload| {
-    //                 let counter_reset_clone = counter_reset_clone.clone();
-    //                 let att_wo_counter = att_wo_counter.clone();
-    //                 let att_wo_counter_reset = att_wo_counter_reset.clone();
-    //                 async move {
-    //                     let mut counter = counter_reset_clone.lock().await;
-    //                     *counter = 0;
-    //                     att_wo_counter.set(NumberBuffer::from(0.0)).await.unwrap();
-    //                     log_info!(att_wo_counter_reset.logger(), "Counter reset to 0");
-    //                 }
-    //                 .boxed()
-    //             },
-    //             None::<fn(&_) -> bool>,
-    //         )
-    //         .await;
-    // }
+    att_wo_counter_reset
+        .add_callback({
+            let counter_reset_clone = wo_command_counter.clone();
+            let att_wo_counter = att_wo_counter.clone();
+            let att_wo_counter_reset = att_wo_counter_reset.clone();
+
+            move |_payload| {
+                let counter_reset_clone = counter_reset_clone.clone();
+                let att_wo_counter = att_wo_counter.clone();
+                let att_wo_counter_reset = att_wo_counter_reset.clone();
+                async move {
+                    let mut counter = counter_reset_clone.lock().await;
+                    *counter = 0;
+                    att_wo_counter.set(NumberBuffer::from(0.0)).await.unwrap();
+                    log_info!(att_wo_counter_reset.logger(), "Counter reset to 0");
+                }
+                .boxed()
+            }
+        })
+        .await;
 
     //
     // Create a write-only boolean attribute
@@ -136,31 +134,29 @@ This attribute is used to test boolean values in the system. It is a write-only 
         .await?;
 
     // Ajout du callback pour incrémenter le compteur et mettre à jour la valeur RO
-    // {
-    //     let counter_clone = wo_command_counter.clone();
-    //     let att_wo_counter = Arc::new(att_wo_counter);
-    //     let att_boolean_ro = att_boolean_ro.clone();
-    //     att_boolean_wo
-    //         .add_callback(
-    //             move |payload| {
-    //                 let counter_clone = counter_clone.clone();
-    //                 let att_wo_counter = att_wo_counter.clone();
-    //                 let att_boolean_ro = att_boolean_ro.clone();
-    //                 async move {
-    //                     let mut counter = counter_clone.lock().await;
-    //                     *counter += 1;
-    //                     att_wo_counter
-    //                         .set(NumberBuffer::from(*counter as f64))
-    //                         .await
-    //                         .unwrap();
-    //                     att_boolean_ro.set(payload).await.unwrap();
-    //                 }
-    //                 .boxed()
-    //             },
-    //             None::<fn(&_) -> bool>,
-    //         )
-    //         .await;
-    // }
+
+    att_boolean_wo
+        .add_callback({
+            let counter_clone = wo_command_counter.clone();
+            let att_wo_counter = att_wo_counter.clone();
+            let att_boolean_ro = att_boolean_ro.clone();
+            move |command| {
+                let counter_clone = counter_clone.clone();
+                let att_wo_counter = att_wo_counter.clone();
+                let att_boolean_ro = att_boolean_ro.clone();
+                async move {
+                    let mut counter = counter_clone.lock().await;
+                    *counter += 1;
+                    att_wo_counter
+                        .set(NumberBuffer::from(*counter as f64))
+                        .await
+                        .unwrap();
+                    att_boolean_ro.set(command).await.unwrap();
+                }
+                .boxed()
+            }
+        })
+        .await;
 
     //
     // Create a read-write boolean attribute
@@ -172,48 +168,7 @@ This attribute is used to test boolean values in the system. It is a write-only 
 
     //
     // Create a write-only boolean attribute pour error
-    let mut att_boolean_error = class
-        .create_attribute("error")
-        .with_wo()
-        .with_info(r#"# Error Simulation Attribute
-
-This attribute is used to simulate error scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
-
-## Purpose
-
-- To test the system's behavior when errors are triggered.
-- To ensure proper handling of unexpected conditions.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: Writing to this attribute triggers an error for testing purposes.
-
-### Additional Notes
-
-- This attribute is intended for testing and debugging only.
-- Use with caution as it will intentionally cause a panic.
-        "#)
-        .start_as_boolean()
-        .await?;
-
-    // Ajout du callback pour la simulation d'erreur
-    // {
-    //     let att_boolean_error = att_boolean_error.clone();
-    //     att_boolean_error
-    //         .add_callback(
-    //             move |_payload| {
-    //                 let att_boolean_error = att_boolean_error.clone();
-    //                 async move {
-    //                     log_info!(att_boolean_error.logger(), "Error simulation triggered");
-    //                     panic!("Simulated error triggered for testing purposes");
-    //                 }
-    //                 .boxed()
-    //             },
-    //             None::<fn(&_) -> bool>,
-    //         )
-    //         .await;
-    // }
+    create_error_boolean_attribute(&mut class).await?;
 
     //
     // if overload is set, create as may rw attributes as overload number
@@ -378,4 +333,53 @@ This attribute is used to simulate alert scenarios in the system. It is a write-
     //
     // Return the write-only boolean attribute for alert simulation
     Ok(att_boolean_alert)
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+/// Initialise et configure l'attribut booléen WO pour la simulation d'erreur avec son callback
+async fn create_error_boolean_attribute(
+    class: &mut impl panduza_platform_core::Container,
+) -> Result<BooleanAttributeServer, Error> {
+    let att_boolean_error = class
+        .create_attribute("error")
+        .with_wo()
+        .with_info(r#"# Error Simulation Attribute
+
+This attribute is used to simulate error scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
+
+## Purpose
+
+- To test the system's behavior when errors are triggered.
+- To ensure proper handling of unexpected conditions.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: Writing to this attribute triggers an error for testing purposes.
+
+### Additional Notes
+
+- This attribute is intended for testing and debugging only.
+- Use with caution as it will intentionally cause a panic.
+        "#)
+        .start_as_boolean()
+        .await?;
+
+    att_boolean_error
+        .add_callback({
+            let att_boolean_error = att_boolean_error.clone();
+            move |_payload| {
+                let att_boolean_error = att_boolean_error.clone();
+                async move {
+                    log_info!(att_boolean_error.logger(), "Error simulation triggered");
+                    panic!("Simulated error triggered for testing purposes");
+                }
+                .boxed()
+            }
+        })
+        .await;
+    Ok(att_boolean_error)
 }
