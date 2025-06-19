@@ -1,4 +1,5 @@
 use futures::FutureExt;
+use panduza_platform_core::instance::server::boolean::BooleanAttributeServer;
 use panduza_platform_core::log_debug_mount_end;
 use panduza_platform_core::log_debug_mount_start;
 use panduza_platform_core::log_info;
@@ -163,56 +164,7 @@ This attribute is used to test boolean values in the system. It is a write-only 
 
     //
     // Create a read-write boolean attribute
-    let mut att_boolean_rw = class
-        .create_attribute("rw")
-        .with_rw()
-        .with_info(
-            r#"# Read Write Command
-
-This attribute is used to test boolean values in the system. It is a read-write attribute, meaning its value can be both read and modified.
-
-## Purpose
-
-- To verify the behavior of read-write boolean attributes.
-- To ensure the system handles `true` and `false` values correctly.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: The value can be read and updated as needed.
-
-### Additional Notes
-
-- This attribute supports both reading and writing operations.
-- Ensure proper synchronization when modifying the value.
-            "#,
-        )
-        .start_as_boolean()
-        .await?;
-    att_boolean_rw.set(false).await?;
-
-    // Ajout du callback pour la gestion RW
-
-    att_boolean_rw
-        .add_callback(
-            {
-                let att_boolean_rw = att_boolean_rw.clone();
-                move |command| {
-                    let att_boolean_rw = att_boolean_rw.clone();
-                    async move {
-                        log_info!(
-                            att_boolean_rw.logger(),
-                            "command received - {:?}",
-                            command.try_value()
-                        );
-                        att_boolean_rw.set(command).await.unwrap();
-                    }
-                    .boxed()
-                }
-            },
-            None::<fn(&_) -> bool>,
-        )
-        .await;
+    create_rw_boolean_attribute(&mut class).await?;
 
     //
     // Create a write-only boolean attribute pour alert
@@ -344,4 +296,57 @@ This attribute is used to simulate error scenarios in the system. It is a write-
     // Finalize the mounting process
     log_debug_mount_end!(class.logger());
     Ok(())
+}
+
+/// Initialise et configure l'attribut booléen RW avec son callback
+///
+async fn create_rw_boolean_attribute(
+    class: &mut impl panduza_platform_core::Container,
+) -> Result<BooleanAttributeServer, Error> {
+    let att_boolean_rw = class
+        .create_attribute("rw")
+        .with_rw()
+        .with_info(
+            r#"# Read Write Command
+
+This attribute is used to test boolean values in the system. It is a read-write attribute, meaning its value can be both read and modified.
+
+## Purpose
+
+- To verify the behavior of read-write boolean attributes.
+- To ensure the system handles `true` and `false` values correctly.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: The value can be read and updated as needed.
+
+### Additional Notes
+
+- This attribute supports both reading and writing operations.
+- Ensure proper synchronization when modifying the value.
+            "#,
+        )
+        .start_as_boolean()
+        .await?;
+    att_boolean_rw.set(false).await?;
+
+    att_boolean_rw
+        .add_callback({
+            let att_boolean_rw = att_boolean_rw.clone();
+            move |command| {
+                let att_boolean_rw = att_boolean_rw.clone();
+                async move {
+                    log_info!(
+                        att_boolean_rw.logger(),
+                        "command received - {:?}",
+                        command.try_value()
+                    );
+                    att_boolean_rw.set(command).await.unwrap();
+                }
+                .boxed()
+            }
+        })
+        .await;
+    Ok(att_boolean_rw)
 }
