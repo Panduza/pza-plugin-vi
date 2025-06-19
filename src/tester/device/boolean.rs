@@ -200,7 +200,11 @@ This attribute is used to test boolean values in the system. It is a read-write 
                 move |command| {
                     let att_boolean_rw = att_boolean_rw.clone();
                     async move {
-                        log_info!(att_boolean_rw.logger(), "command received - {:?}", command);
+                        log_info!(
+                            att_boolean_rw.logger(),
+                            "command received - {:?}",
+                            command.try_value()
+                        );
                         att_boolean_rw.set(command).await.unwrap();
                     }
                     .boxed()
