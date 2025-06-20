@@ -126,9 +126,9 @@ This attribute is used to test boolean values in the system. It is a read-write 
                     log_info!(
                         att_boolean_rw.logger(),
                         "command received - {:?}",
-                        command.try_value()
+                        command.value()
                     );
-                    att_boolean_rw.set(command).await.unwrap();
+                    att_boolean_rw.reply_to(&command, command.value()).await;
                 }
                 .boxed()
             }
