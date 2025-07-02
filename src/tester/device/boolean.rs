@@ -6,7 +6,6 @@ use panduza_platform_core::log_info;
 use panduza_platform_core::Container;
 use panduza_platform_core::Error;
 use panduza_platform_core::Instance;
-use panduza_platform_core::NumberBuffer;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -295,9 +294,9 @@ This attribute tracks the number of commands received by the wo (write-only) boo
 - Value increments each time a command is received by the wo attribute.
 "#,
         )
-        .start_as_si("", 0.0, 1000000.0, 0)
+        .start_as_number()
         .await?;
-    att_wo_counter.set(NumberBuffer::from(0.0)).await?;
+    att_wo_counter.set(0.0).await?;
 
     // Compteur partagé
     let wo_command_counter = Arc::new(Mutex::new(0));
@@ -336,7 +335,7 @@ This attribute resets the command counter for the wo (write-only) boolean attrib
                 async move {
                     let mut counter = counter_reset_clone.lock().await;
                     *counter = 0;
-                    att_wo_counter.set(NumberBuffer::from(0.0)).await.unwrap();
+                    att_wo_counter.set(0.0).await.unwrap();
                     log_info!(att_wo_counter_reset.logger(), "Counter reset to 0");
                 }
                 .boxed()
@@ -377,10 +376,7 @@ This attribute is used to test boolean values in the system. It is a write-only 
                 async move {
                     let mut counter = counter_clone.lock().await;
                     *counter += 1;
-                    att_wo_counter
-                        .set(NumberBuffer::from(*counter as f64))
-                        .await
-                        .unwrap();
+                    att_wo_counter.set(*counter as f64).await.unwrap();
                     att_boolean_ro.set(command).await.unwrap();
                 }
                 .boxed()
