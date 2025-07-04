@@ -2,6 +2,7 @@ mod boolean;
 mod bytes;
 mod r#enum;
 mod json;
+mod number;
 mod string;
 mod vector_f32;
 mod waveform;
@@ -37,11 +38,10 @@ impl Actions for Device {
             None
         };
 
-        // si::mount(instance.clone()).await?;
-        r#enum::mount(instance.clone()).await?;
-        string::mount(instance.clone()).await?;
         boolean::mount(instance.clone(), boolean_overload).await?;
-        // waveform::mount(instance.clone()).await?;
+        number::mount(instance.clone()).await?;
+        string::mount(instance.clone()).await?;
+
         json::mount(instance.clone()).await?;
         // vector_f32::mount(instance.clone()).await?;
         bytes::mount(instance.clone()).await?;
