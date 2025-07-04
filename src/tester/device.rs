@@ -1,6 +1,6 @@
 mod boolean;
 mod bytes;
-mod r#enum;
+// mod r#enum;
 mod json;
 mod number;
 mod string;
@@ -41,10 +41,10 @@ impl Actions for Device {
         boolean::mount(instance.clone(), boolean_overload).await?;
         number::mount(instance.clone()).await?;
         string::mount(instance.clone()).await?;
-
-        json::mount(instance.clone()).await?;
-        // vector_f32::mount(instance.clone()).await?;
         bytes::mount(instance.clone()).await?;
+
+        // json::mount(instance.clone()).await?;
+        // vector_f32::mount(instance.clone()).await?;
         Ok(())
     }
     ///
