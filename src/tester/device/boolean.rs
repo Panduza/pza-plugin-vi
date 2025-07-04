@@ -9,6 +9,123 @@ use panduza_platform_core::Instance;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+// Static constants for attribute info texts
+const INFO_BOOLEAN_RO: &str = r#"# Boolean Attribute Test
+
+This attribute is used to test boolean values in the system. It is a read-only attribute, meaning its value can only be read and not modified directly.
+
+## Purpose
+
+- To verify the behavior of boolean attributes.
+- To ensure the system handles `true` and `false` values correctly.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: The value changes based on external triggers or commands.
+"#;
+
+const INFO_WO_COUNTER: &str = r#"# WO Command Counter
+
+This attribute tracks the number of commands received by the wo (write-only) boolean attribute.
+
+## Purpose
+- To count how many commands are sent to the write-only attribute.
+- To provide metrics for testing purposes.
+
+## Example
+- Initial value: 0
+- Value increments each time a command is received by the wo attribute.
+"#;
+
+const INFO_WO_COUNTER_RESET: &str = r#"# WO Counter Reset
+
+This attribute resets the command counter for the wo (write-only) boolean attribute.
+
+## Purpose
+- To reset the counter to zero when needed.
+- To provide testing control over the counter state.
+
+## Example
+- Send any boolean value to this attribute to reset the counter to 0.
+- After reset, the wo_counter attribute will be set back to 0.
+"#;
+
+const INFO_BOOLEAN_WO: &str = r#"# Boolean Attribute Test
+
+This attribute is used to test boolean values in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
+
+## Purpose
+
+- To verify the behavior of boolean attributes.
+- To ensure the system handles `true` and `false` values correctly.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: The value changes based on external triggers or commands.
+"#;
+
+const INFO_BOOLEAN_RW: &str = r#"# Read Write Command
+
+This attribute is used to test boolean values in the system. It is a read-write attribute, meaning its value can be both read and modified.
+
+## Purpose
+
+- To verify the behavior of read-write boolean attributes.
+- To ensure the system handles `true` and `false` values correctly.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: The value can be read and updated as needed.
+
+### Additional Notes
+
+- This attribute supports both reading and writing operations.
+- Ensure proper synchronization when modifying the value.
+"#;
+
+const INFO_BOOLEAN_ALERT: &str = r#"# Alert Simulation Attribute
+
+This attribute is used to simulate alert scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
+
+## Purpose
+
+- To test the system's behavior when alerts are triggered.
+- To ensure proper handling of alert conditions.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: Writing to this attribute triggers an alert for testing purposes.
+
+### Additional Notes
+
+- This attribute is intended for testing and debugging only.
+- Use with caution as it will intentionally trigger an alert.
+"#;
+
+const INFO_BOOLEAN_ERROR: &str = r#"# Error Simulation Attribute
+
+This attribute is used to simulate error scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
+
+## Purpose
+
+- To test the system's behavior when errors are triggered.
+- To ensure proper handling of unexpected conditions.
+
+## Example
+
+- Initial value: `false`
+- Expected behavior: Writing to this attribute triggers an error for testing purposes.
+
+### Additional Notes
+
+- This attribute is intended for testing and debugging only.
+- Use with caution as it will intentionally cause a panic.
+"#;
+
 /// This module contains the implementation of the boolean attribute test.
 ///
 pub async fn mount(mut instance: Instance, overload: Option<usize>) -> Result<(), Error> {
@@ -86,27 +203,7 @@ async fn create_rw_boolean_attribute(
     let att_boolean_rw = class
         .create_attribute("rw")
         .with_rw()
-        .with_info(
-            r#"# Read Write Command
-
-This attribute is used to test boolean values in the system. It is a read-write attribute, meaning its value can be both read and modified.
-
-## Purpose
-
-- To verify the behavior of read-write boolean attributes.
-- To ensure the system handles `true` and `false` values correctly.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: The value can be read and updated as needed.
-
-### Additional Notes
-
-- This attribute supports both reading and writing operations.
-- Ensure proper synchronization when modifying the value.
-            "#,
-        )
+        .with_info(INFO_BOOLEAN_RW)
         .start_as_boolean()
         .await?;
 
@@ -152,25 +249,7 @@ async fn create_alert_boolean_attribute(
     let att_boolean_alert = class
         .create_attribute("alert")
         .with_wo()
-        .with_info(r#"# Alert Simulation Attribute
-
-This attribute is used to simulate alert scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
-
-## Purpose
-
-- To test the system's behavior when alerts are triggered.
-- To ensure proper handling of alert conditions.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: Writing to this attribute triggers an alert for testing purposes.
-
-### Additional Notes
-
-- This attribute is intended for testing and debugging only.
-- Use with caution as it will intentionally trigger an alert.
-        "#)
+        .with_info(INFO_BOOLEAN_ALERT)
         .start_as_boolean()
         .await?;
 
@@ -208,25 +287,7 @@ async fn create_error_boolean_attribute(
     let att_boolean_error = class
         .create_attribute("error")
         .with_wo()
-        .with_info(r#"# Error Simulation Attribute
-
-This attribute is used to simulate error scenarios in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
-
-## Purpose
-
-- To test the system's behavior when errors are triggered.
-- To ensure proper handling of unexpected conditions.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: Writing to this attribute triggers an error for testing purposes.
-
-### Additional Notes
-
-- This attribute is intended for testing and debugging only.
-- Use with caution as it will intentionally cause a panic.
-        "#)
+        .with_info(INFO_BOOLEAN_ERROR)
         .start_as_boolean()
         .await?;
 
@@ -258,20 +319,7 @@ async fn create_boolean_test_attributes(
     let att_boolean_ro = class
         .create_attribute("ro")
         .with_ro()
-        .with_info(r#"# Boolean Attribute Test
-
-This attribute is used to test boolean values in the system. It is a read-only attribute, meaning its value can only be read and not modified directly.
-
-## Purpose
-
-- To verify the behavior of boolean attributes.
-- To ensure the system handles `true` and `false` values correctly.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: The value changes based on external triggers or commands.
-        "#)
+        .with_info(INFO_BOOLEAN_RO)
         .start_as_boolean()
         .await?;
     att_boolean_ro.set(false).await?;
@@ -280,20 +328,7 @@ This attribute is used to test boolean values in the system. It is a read-only a
     let att_wo_counter = class
         .create_attribute("wo_counter")
         .with_ro()
-        .with_info(
-            r#"# WO Command Counter
-
-This attribute tracks the number of commands received by the wo (write-only) boolean attribute.
-
-## Purpose
-- To count how many commands are sent to the write-only attribute.
-- To provide metrics for testing purposes.
-
-## Example
-- Initial value: 0
-- Value increments each time a command is received by the wo attribute.
-"#,
-        )
+        .with_info(INFO_WO_COUNTER)
         .start_as_number()
         .await?;
     att_wo_counter.set(0.0).await?;
@@ -305,20 +340,7 @@ This attribute tracks the number of commands received by the wo (write-only) boo
     let att_wo_counter_reset = class
         .create_attribute("wo_counter_reset")
         .with_wo()
-        .with_info(
-            r#"# WO Counter Reset
-
-This attribute resets the command counter for the wo (write-only) boolean attribute.
-
-## Purpose
-- To reset the counter to zero when needed.
-- To provide testing control over the counter state.
-
-## Example
-- Send any boolean value to this attribute to reset the counter to 0.
-- After reset, the wo_counter attribute will be set back to 0.
-"#,
-        )
+        .with_info(INFO_WO_COUNTER_RESET)
         .start_as_boolean()
         .await?;
 
@@ -347,20 +369,7 @@ This attribute resets the command counter for the wo (write-only) boolean attrib
     let att_boolean_wo = class
         .create_attribute("wo")
         .with_wo()
-        .with_info(r#"# Boolean Attribute Test
-
-This attribute is used to test boolean values in the system. It is a write-only attribute, meaning its value can only be written to and not read directly.
-
-## Purpose
-
-- To verify the behavior of boolean attributes.
-- To ensure the system handles `true` and `false` values correctly.
-
-## Example
-
-- Initial value: `false`
-- Expected behavior: The value changes based on external triggers or commands.
-        "#)
+        .with_info(INFO_BOOLEAN_WO)
         .start_as_boolean()
         .await?;
 
