@@ -224,8 +224,10 @@ async fn create_rw_boolean_attribute(
                         "command received - {:?}",
                         command.value()
                     );
-
-                    att_boolean_rw.set(command.value().unwrap()).await;
+                    att_boolean_rw
+                        .respond(command.value().unwrap(), &command)
+                        .await
+                        .expect("Failed to respond to command");
                 }
                 .boxed()
             }
