@@ -224,7 +224,8 @@ async fn create_rw_boolean_attribute(
                         "command received - {:?}",
                         command.value()
                     );
-                    att_boolean_rw.reply_to(&command, command.value()).await;
+
+                    att_boolean_rw.set(command.value().unwrap()).await;
                 }
                 .boxed()
             }
@@ -386,7 +387,7 @@ async fn create_boolean_test_attributes(
                     let mut counter = counter_clone.lock().await;
                     *counter += 1;
                     att_wo_counter.set(*counter as f64).await.unwrap();
-                    att_boolean_ro.set(command).await.unwrap();
+                    att_boolean_ro.set(command.value().unwrap()).await.unwrap();
                 }
                 .boxed()
             }

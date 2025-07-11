@@ -67,7 +67,10 @@ async fn create_rw_string_attribute(
                         "command received - {:?}",
                         command.value()
                     );
-                    att_string_rw.reply_to(&command, command.value()).await;
+                    att_string_rw
+                        .set(command.value().unwrap())
+                        .await
+                        .expect("Failed to set value");
                 }
                 .boxed()
             }
@@ -110,7 +113,7 @@ async fn create_string_test_attributes(
             move |command| {
                 let att_string_ro = att_string_ro.clone();
                 async move {
-                    att_string_ro.set(command.value()).await.unwrap();
+                    att_string_ro.set(command.value().unwrap()).await.unwrap();
                 }
                 .boxed()
             }

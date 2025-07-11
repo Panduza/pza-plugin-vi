@@ -68,7 +68,7 @@ async fn create_rw_bytes_attribute(
                         "command received - {:?}",
                         command.value()
                     );
-                    att_bytes_rw.reply_to(&command, command.value()).await;
+                    att_bytes_rw.set(command.value().unwrap()).await;
                 }
                 .boxed()
             }
@@ -111,7 +111,7 @@ async fn create_bytes_test_attributes(
             move |command| {
                 let att_bytes_ro = att_bytes_ro.clone();
                 async move {
-                    att_bytes_ro.set(command.value()).await.unwrap();
+                    att_bytes_ro.set(command.value().unwrap()).await.unwrap();
                 }
                 .boxed()
             }

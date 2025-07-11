@@ -67,7 +67,7 @@ async fn create_rw_number_attribute(
                         "command received - {:?}",
                         command.value()
                     );
-                    att_number_rw.reply_to(&command, command.value()).await;
+                    att_number_rw.set(command.value().unwrap()).await.unwrap();
                 }
                 .boxed()
             }
@@ -110,7 +110,7 @@ async fn create_number_test_attributes(
             move |command| {
                 let att_number_ro = att_number_ro.clone();
                 async move {
-                    att_number_ro.set(command.value()).await.unwrap();
+                    att_number_ro.set(command.value().unwrap()).await.unwrap();
                 }
                 .boxed()
             }
