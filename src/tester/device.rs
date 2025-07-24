@@ -1,11 +1,11 @@
 mod boolean;
 mod bytes;
-mod r#enum;
+// mod r#enum;
 mod json;
-mod si;
+mod number;
 mod string;
-mod vector_f32;
-mod waveform;
+// mod vector_f32;
+// mod waveform;
 use async_trait::async_trait;
 use panduza_platform_core::{Actions, Error, Instance};
 use std::time::Duration;
@@ -38,14 +38,13 @@ impl Actions for Device {
             None
         };
 
-        si::mount(instance.clone()).await?;
-        r#enum::mount(instance.clone()).await?;
-        string::mount(instance.clone()).await?;
         boolean::mount(instance.clone(), boolean_overload).await?;
-        // waveform::mount(instance.clone()).await?;
-        json::mount(instance.clone()).await?;
-        // vector_f32::mount(instance.clone()).await?;
+        number::mount(instance.clone()).await?;
+        string::mount(instance.clone()).await?;
         bytes::mount(instance.clone()).await?;
+
+        // json::mount(instance.clone()).await?;
+        // vector_f32::mount(instance.clone()).await?;
         Ok(())
     }
     ///
