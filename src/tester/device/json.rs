@@ -33,15 +33,18 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_json_wo = tokio::spawn(async move {
         loop {
-            att_json_wo.wait_for_commands().await;
-            while let Some(command) = att_json_wo.pop().await {
-                log_info!(att_json_wo.logger(), "command recieved - {:?}", command);
+            if let Ok(command) = att_json_wo.wait_for_commands().await {
+                // log_info!(att_json_wo.logger(), "command recieved - {:?}", command);
                 att_json_ro.set(command).await.unwrap();
             }
         }
     });
+
+    instance
+        .monitor_task("tester/json/wo".to_string(), handler_att_json_wo)
+        .await;
 
     //
     //
@@ -55,15 +58,18 @@ pub async fn mount(mut instance: Instance) -> Result<(), Error> {
 
     //
     //
-    tokio::spawn(async move {
+    let handler_att_json_rw = tokio::spawn(async move {
         loop {
-            att_json_rw.wait_for_commands().await;
-            while let Some(command) = att_json_rw.pop().await {
+            if let Ok(command) = att_json_rw.wait_for_commands().await {
                 log_info!(att_json_rw.logger(), "command recieved - {:?}", command);
                 att_json_rw.set(command).await.unwrap();
             }
         }
     });
+
+    instance
+        .monitor_task("tester/json/rw".to_string(), handler_att_json_rw)
+        .await;
 
     // Finalize the mounting process
     log_debug_mount_end!(class.logger());
